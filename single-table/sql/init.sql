@@ -1,64 +1,91 @@
 -- Uncomment the line below to disable parallel workers. See https://www.postgresql.org/docs/current/runtime-config-resource.html#GUC-MAX-PARALLEL-WORKERS-PER-GATHER for more details.
 -- set max_parallel_workers_per_gather = 0;
 
-create table weather_station (
+create table event (
     id uuid not null default gen_random_uuid(),
-    name text not null,
-    constraint pk_weather_station primary key (id),
-    constraint uq_weather_station_name unique (name)
+    created timestamp not null,
+    org_id varchar(50) not null,
+    bundle_id uuid not null,
+    bundle_display_name text not null,
+    application_id uuid not null,
+    application_display_name text not null,
+    event_type_display_name text not null,
+    payload text,
+    constraint pk_event primary key (id)
 );
 
-create table weather_report (
-    id uuid not null default gen_random_uuid(),
-    data text not null,
-    received_at timestamp not null,
-    weather_station_id uuid not null,
-    constraint pk_weather_report primary key (id),
-    constraint fk_weather_report_weather_station foreign key (weather_station_id) references weather_station (id)
+create table drawer_notification (
+    org_id varchar(50) not null,
+    user_id varchar(50) not null,
+    event_id uuid not null,
+    read boolean not null default false,
+    created timestamp not null,
+    constraint pk_drawer_notification primary key (org_id, user_id, event_id),
+    constraint fk_drawer_notification_event foreign key (event_id) references event (id)
 );
 
 create procedure init(
-    weather_stations integer,
+    orgs_count integer,
+    users_per_org integer,
     days_to_insert integer,
-    daily_weather_report_records integer,
+    daily_event_records integer,
     retention_delay integer
 ) language plpgsql as $$
+declare
+    current_day_timestamp timestamp;
 begin
 
     raise info 'Bootstrapping the database...';
 
-    insert into weather_station (name)
-    select 'weather-station-' || i
-    from generate_series(1, weather_stations) as i;
-    raise info 'Inserted % weather_station records', weather_stations;
-
-    raise info 'Inserting weather_report records for % days with a retention delay of % days...', days_to_insert, retention_delay;
+    raise info 'Inserting drawer_notification records for % days with a retention delay of % days...', days_to_insert, retention_delay;
     for i in 1..days_to_insert loop
 
         if i > retention_delay then
-            delete from weather_report
-            where date(received_at) = (select date(min(received_at)) from weather_report);
-            raise info 'Deleted oldest day from weather_report';
+            delete from drawer_notification
+            where event_id in (
+                select id from event
+                where date(created) = (select date(min(created)) from event)
+            );
+            delete from event
+            where date(created) = (select date(min(created)) from event);
+            raise info 'Deleted oldest day from drawer_notification and event';
         end if;
 
-        with ranked_weather_stations as (
-            select id, rank() over (order by name) as rank
-            from weather_station
-        )
-        insert into weather_report (data, received_at, weather_station_id)
+        current_day_timestamp := clock_timestamp() - (days_to_insert - i || ' days')::interval;
+
+        -- Insert events for the day
+        insert into event (created, org_id, bundle_id, bundle_display_name, application_id, application_display_name, event_type_display_name, payload)
         select
-            md5(random()::text),
-            clock_timestamp() - (days_to_insert - i || ' days')::interval,
-            (select id from ranked_weather_stations where rank = j % weather_stations + 1)
-        from generate_series(1, daily_weather_report_records) as j;
-        raise info 'Day % - Inserted weather_report records', i;
+            current_day_timestamp,
+            'org-' || ((j % orgs_count) + 1),
+            gen_random_uuid(),
+            'bundle-' || ((j % 10) + 1),
+            gen_random_uuid(),
+            'app-' || ((j % 20) + 1),
+            'event-type-' || ((j % 5) + 1),
+            '{"data": "' || md5(random()::text) || '"}'
+        from generate_series(1, daily_event_records) as j;
+
+        -- Insert drawer_notifications for each event, for each user in the org
+        insert into drawer_notification (org_id, user_id, event_id, read, created)
+        select
+            e.org_id,
+            'user-' || u.user_num,
+            e.id,
+            false,
+            e.created
+        from event e
+        cross join lateral generate_series(1, users_per_org) as u(user_num)
+        where date(e.created) = date(current_day_timestamp);
+
+        raise info 'Day % - Inserted event and drawer_notification records', i;
 
     end loop;
-    raise info 'Done inserting all weather_report records';
+    raise info 'Done inserting all records';
 
     raise info 'Done bootstrapping the database';
 
 end;
 $$;
 
-call init(100, 60, 1000000, 30);
+call init(10, 100, 60, 100000, 30);
