@@ -28,8 +28,7 @@ create procedure init(
     orgs_count integer,
     users_per_org integer,
     days_to_insert integer,
-    daily_event_records integer,
-    retention_delay integer
+    daily_event_records integer
 ) language plpgsql as $$
 declare
     current_day_timestamp timestamp;
@@ -37,19 +36,8 @@ begin
 
     raise info 'Bootstrapping the database...';
 
-    raise info 'Inserting drawer_notification records for % days with a retention delay of % days...', days_to_insert, retention_delay;
+    raise info 'Inserting drawer_notification records for % days...', days_to_insert;
     for i in 1..days_to_insert loop
-
-        if i > retention_delay then
-            delete from drawer_notification
-            where event_id in (
-                select id from event
-                where date(created) = (select date(min(created)) from event)
-            );
-            delete from event
-            where date(created) = (select date(min(created)) from event);
-            raise info 'Deleted oldest day from drawer_notification and event';
-        end if;
 
         current_day_timestamp := clock_timestamp() - (days_to_insert - i || ' days')::interval;
 
@@ -88,4 +76,4 @@ begin
 end;
 $$;
 
-call init(10, 100, 60, 100000, 30);
+-- call init(10, 100, 60, 100000);
