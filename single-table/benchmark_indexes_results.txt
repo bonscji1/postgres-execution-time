@@ -1,0 +1,157 @@
+CREATE FUNCTION
+ drop_all_test_indexes 
+-----------------------
+ 
+(1 row)
+
+VACUUM
+=== Scenario 1: Baseline (PK only) ===
+                                                                         QUERY PLAN                                                                          
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using pk_drawer_notification on drawer_notification  (cost=0.57..379678.80 rows=99733 width=38) (actual time=0.065..100.258 rows=100000 loops=1)
+   Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+   Buffers: shared hit=100774
+ Planning:
+   Buffers: shared hit=34
+ Planning Time: 0.269 ms
+ JIT:
+   Functions: 2
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.184 ms (Deform 0.061 ms), Inlining 0.000 ms, Optimization 0.000 ms, Emission 0.000 ms, Total 0.184 ms
+ Execution Time: 132.253 ms
+(11 rows)
+
+=== Scenario 1: Done
+
+ drop_all_test_indexes 
+-----------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 2: Single B-tree on org_id ===
+                                                                         QUERY PLAN                                                                          
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using pk_drawer_notification on drawer_notification  (cost=0.57..398245.39 rows=104984 width=38) (actual time=0.021..80.543 rows=100000 loops=1)
+   Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+   Buffers: shared hit=100774
+ Planning:
+   Buffers: shared hit=34
+ Planning Time: 0.183 ms
+ JIT:
+   Functions: 2
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.141 ms (Deform 0.037 ms), Inlining 0.000 ms, Optimization 0.000 ms, Emission 0.000 ms, Total 0.141 ms
+ Execution Time: 83.785 ms
+(11 rows)
+
+=== Scenario 2: Done
+
+ drop_all_test_indexes 
+-----------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 3: Single B-tree on user_id ===
+                                                                         QUERY PLAN                                                                         
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using pk_drawer_notification on drawer_notification  (cost=0.57..355597.06 rows=93145 width=38) (actual time=0.022..80.802 rows=100000 loops=1)
+   Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+   Buffers: shared hit=100774
+ Planning:
+   Buffers: shared hit=34
+ Planning Time: 0.189 ms
+ JIT:
+   Functions: 2
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.147 ms (Deform 0.041 ms), Inlining 0.000 ms, Optimization 0.000 ms, Emission 0.000 ms, Total 0.147 ms
+ Execution Time: 83.984 ms
+(11 rows)
+
+=== Scenario 3: Done
+
+ drop_all_test_indexes 
+-----------------------
+ 
+(1 row)
+
+CREATE INDEX
+CREATE INDEX
+VACUUM
+=== Scenario 4: Two separate B-tree indexes (org_id + user_id) ===
+                                                                         QUERY PLAN                                                                         
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using pk_drawer_notification on drawer_notification  (cost=0.57..335286.24 rows=87549 width=38) (actual time=0.021..84.457 rows=100000 loops=1)
+   Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+   Buffers: shared hit=100774
+ Planning:
+   Buffers: shared hit=41
+ Planning Time: 0.197 ms
+ JIT:
+   Functions: 2
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.154 ms (Deform 0.040 ms), Inlining 0.000 ms, Optimization 0.000 ms, Emission 0.000 ms, Total 0.154 ms
+ Execution Time: 87.760 ms
+(11 rows)
+
+=== Scenario 4: Done
+
+ drop_all_test_indexes 
+-----------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 5: Composite B-tree (org_id, user_id) ===
+                                                                              QUERY PLAN                                                                              
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using ix_drawer_notification_org_user on drawer_notification  (cost=0.57..428674.82 rows=114448 width=38) (actual time=0.067..16.673 rows=100000 loops=1)
+   Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+   Buffers: shared hit=8341 read=89
+ Planning:
+   Buffers: shared hit=34
+ Planning Time: 0.187 ms
+ JIT:
+   Functions: 2
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.155 ms (Deform 0.046 ms), Inlining 0.000 ms, Optimization 0.000 ms, Emission 0.000 ms, Total 0.155 ms
+ Execution Time: 18.667 ms
+(11 rows)
+
+=== Scenario 5: Done
+
+ drop_all_test_indexes 
+-----------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 6: Composite B-tree (user_id, org_id) - reversed ===
+                                                                             QUERY PLAN                                                                              
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using ix_drawer_notification_user_org on drawer_notification  (cost=0.57..360796.54 rows=95076 width=38) (actual time=0.069..16.793 rows=100000 loops=1)
+   Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+   Buffers: shared hit=8341 read=89
+ Planning:
+   Buffers: shared hit=34
+ Planning Time: 0.199 ms
+ JIT:
+   Functions: 2
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.150 ms (Deform 0.042 ms), Inlining 0.000 ms, Optimization 0.000 ms, Emission 0.000 ms, Total 0.150 ms
+ Execution Time: 18.849 ms
+(11 rows)
+
+=== Scenario 6: Done
+
+ drop_all_test_indexes 
+-----------------------
+ 
+(1 row)
+
+DROP FUNCTION

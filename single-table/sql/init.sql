@@ -24,6 +24,24 @@ create table drawer_notification (
     constraint fk_drawer_notification_event foreign key (event_id) references event (id)
 );
 
+create table drawer_notification_jsonb (
+    org_id varchar(50) not null,
+    event_id uuid not null,
+    users jsonb not null,
+    created timestamp not null,
+    constraint pk_drawer_notification_jsonb primary key (org_id, event_id),
+    constraint fk_drawer_notification_jsonb_event foreign key (event_id) references event (id)
+);
+
+create table drawer_notification_jsonb_simple (
+    org_id varchar(50) not null,
+    event_id uuid not null,
+    user_ids jsonb not null,
+    created timestamp not null,
+    constraint pk_drawer_notification_jsonb_simple primary key (org_id, event_id),
+    constraint fk_drawer_notification_jsonb_simple_event foreign key (event_id) references event (id)
+);
+
 create procedure init(
     orgs_count integer,
     users_per_org integer,
@@ -66,6 +84,30 @@ begin
         cross join lateral generate_series(1, users_per_org) as u(user_num)
         where date(e.created) = date(current_day_timestamp);
 
+        -- Insert drawer_notifications_jsonb with all users in a JSONB array per event
+        insert into drawer_notification_jsonb (org_id, event_id, users, created)
+        select
+            e.org_id,
+            e.id,
+            jsonb_agg(jsonb_build_object('user_id', 'user-' || u.user_num, 'read', false)),
+            e.created
+        from event e
+        cross join lateral generate_series(1, users_per_org) as u(user_num)
+        where date(e.created) = date(current_day_timestamp)
+        group by e.org_id, e.id, e.created;
+
+        -- Insert drawer_notifications_jsonb_simple with simple array of user IDs
+        insert into drawer_notification_jsonb_simple (org_id, event_id, user_ids, created)
+        select
+            e.org_id,
+            e.id,
+            jsonb_agg('user-' || u.user_num),
+            e.created
+        from event e
+        cross join lateral generate_series(1, users_per_org) as u(user_num)
+        where date(e.created) = date(current_day_timestamp)
+        group by e.org_id, e.id, e.created;
+
         raise info 'Day % - Inserted event and drawer_notification records', i;
 
     end loop;
@@ -76,4 +118,4 @@ begin
 end;
 $$;
 
--- call init(10, 100, 30, 100000);
+-- call init(10, 100, 15, 100000);

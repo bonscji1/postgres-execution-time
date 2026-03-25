@@ -1,14 +1,25 @@
-drop index if exists ix_btree_received_at_weather_station_id_non_covering;
-create index ix_btree_received_at_weather_station_id_non_covering on weather_report using btree (received_at desc, weather_station_id);
+-- Scenario 1: No additional indexes (baseline - only PK)
+-- drop all indexes below
 
-drop index if exists ix_btree_weather_station_id_received_at_non_covering;
-create index ix_btree_weather_station_id_received_at_non_covering on weather_report using btree (weather_station_id, received_at desc);
+-- Scenario 2: Single B-tree index on org_id
+drop index if exists ix_drawer_notification_org_id;
+create index ix_drawer_notification_org_id on drawer_notification using btree (org_id);
 
-drop index if exists ix_btree_received_at_weather_station_id_covering;
-create index ix_btree_received_at_weather_station_id_covering on weather_report using btree (received_at desc, weather_station_id) include (id, data);
+-- Scenario 3: Single B-tree index on user_id
+drop index if exists ix_drawer_notification_user_id;
+create index ix_drawer_notification_user_id on drawer_notification using btree (user_id);
 
-drop index if exists ix_btree_weather_station_id_received_at_covering;
-create index ix_btree_weather_station_id_received_at_covering on weather_report using btree (weather_station_id, received_at desc) include (id, data);
+-- Scenario 4: Both single indexes (org_id + user_id separately)
+drop index if exists ix_drawer_notification_org_id;
+drop index if exists ix_drawer_notification_user_id;
+create index ix_drawer_notification_org_id on drawer_notification using btree (org_id);
+create index ix_drawer_notification_user_id on drawer_notification using btree (user_id);
 
-drop index if exists ix_brin_received_at;
-create index ix_brin_received_at on weather_report using brin (received_at);
+-- Scenario 5: Composite B-tree (org_id, user_id)
+drop index if exists ix_drawer_notification_org_user;
+create index ix_drawer_notification_org_user on drawer_notification using btree (org_id, user_id);
+
+-- Scenario 6: Composite B-tree (user_id, org_id) - reversed order
+drop index if exists ix_drawer_notification_user_org;
+create index ix_drawer_notification_user_org on drawer_notification using btree (user_id, org_id);
+
