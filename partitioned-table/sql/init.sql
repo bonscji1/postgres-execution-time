@@ -14,6 +14,9 @@ create table event (
     constraint pk_event primary key (id)
 );
 
+-- Index on created column for efficient date-based queries and deletes
+create index ix_event_created on event(created);
+
 create table drawer_notification (
     org_id varchar(50) not null,
     user_id varchar(50) not null,
@@ -23,6 +26,9 @@ create table drawer_notification (
     constraint fk_drawer_notification_event foreign key (event_id) references event (id)
 ) partition by range (created);
 
+-- Index on event_id for efficient FK checks when deleting from event table
+create index ix_drawer_notification_event_id on drawer_notification(event_id);
+
 create table drawer_notification_org (
     org_id varchar(50) not null,
     user_id varchar(50) not null,
@@ -31,6 +37,10 @@ create table drawer_notification_org (
     created timestamp not null,
     constraint fk_drawer_notification_org_event foreign key (event_id) references event (id)
 ) partition by list (org_id);
+
+-- Indexes for efficient operations on drawer_notification_org
+create index ix_drawer_notification_org_event_id on drawer_notification_org(event_id);
+create index ix_drawer_notification_org_created on drawer_notification_org(created);
 
 create procedure init(
     orgs_count integer,

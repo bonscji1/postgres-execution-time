@@ -14,6 +14,9 @@ create table event (
     constraint pk_event primary key (id)
 );
 
+-- Index on created column for efficient date-based queries and deletes
+create index ix_event_created on event(created);
+
 create table drawer_notification (
     org_id varchar(50) not null,
     user_id varchar(50) not null,
@@ -24,6 +27,10 @@ create table drawer_notification (
     constraint fk_drawer_notification_event foreign key (event_id) references event (id)
 );
 
+-- Indexes for efficient FK checks and date-based deletes
+create index ix_drawer_notification_event_id on drawer_notification(event_id);
+create index ix_drawer_notification_created on drawer_notification(created);
+
 create table drawer_notification_jsonb (
     org_id varchar(50) not null,
     event_id uuid not null,
@@ -33,6 +40,10 @@ create table drawer_notification_jsonb (
     constraint fk_drawer_notification_jsonb_event foreign key (event_id) references event (id)
 );
 
+-- Indexes for efficient FK checks and date-based deletes
+create index ix_drawer_notification_jsonb_event_id on drawer_notification_jsonb(event_id);
+create index ix_drawer_notification_jsonb_created on drawer_notification_jsonb(created);
+
 create table drawer_notification_jsonb_simple (
     org_id varchar(50) not null,
     event_id uuid not null,
@@ -41,6 +52,10 @@ create table drawer_notification_jsonb_simple (
     constraint pk_drawer_notification_jsonb_simple primary key (org_id, event_id),
     constraint fk_drawer_notification_jsonb_simple_event foreign key (event_id) references event (id)
 );
+
+-- Indexes for efficient FK checks and date-based deletes
+create index ix_drawer_notification_jsonb_simple_event_id on drawer_notification_jsonb_simple(event_id);
+create index ix_drawer_notification_jsonb_simple_created on drawer_notification_jsonb_simple(created);
 
 create procedure init(
     orgs_count integer,
