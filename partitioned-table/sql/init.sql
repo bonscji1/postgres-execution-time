@@ -1,94 +1,125 @@
 -- Uncomment the line below to disable parallel workers. See https://www.postgresql.org/docs/current/runtime-config-resource.html#GUC-MAX-PARALLEL-WORKERS-PER-GATHER for more details.
 -- set max_parallel_workers_per_gather = 0;
 
-create table weather_station (
+create table event (
     id uuid not null default gen_random_uuid(),
-    name text not null,
-    constraint pk_weather_station primary key (id),
-    constraint uq_weather_station_name unique (name)
+    created timestamp not null,
+    org_id varchar(50) not null,
+    bundle_id uuid not null,
+    bundle_display_name text not null,
+    application_id uuid not null,
+    application_display_name text not null,
+    event_type_display_name text not null,
+    payload text,
+    constraint pk_event primary key (id)
 );
 
-create table weather_report (
-    id uuid not null default gen_random_uuid(),
-    data text not null,
-    received_at timestamp not null,
-    weather_station_id uuid not null,
-    constraint fk_weather_report_weather_station foreign key (weather_station_id) references weather_station (id)
-) partition by range (received_at);
+create table drawer_notification (
+    org_id varchar(50) not null,
+    user_id varchar(50) not null,
+    event_id uuid not null,
+    read boolean not null default false,
+    created timestamp not null,
+    constraint fk_drawer_notification_event foreign key (event_id) references event (id)
+) partition by range (created);
+
+create table drawer_notification_org (
+    org_id varchar(50) not null,
+    user_id varchar(50) not null,
+    event_id uuid not null,
+    read boolean not null default false,
+    created timestamp not null,
+    constraint fk_drawer_notification_org_event foreign key (event_id) references event (id)
+) partition by list (org_id);
 
 create procedure init(
-    weather_stations integer,
+    orgs_count integer,
+    users_per_org integer,
     days_to_insert integer,
-    daily_weather_report_records integer,
-    retention_delay integer
+    daily_event_records integer
 ) language plpgsql as $$
 declare
-    oldest_partition text;
+    current_day_timestamp timestamp;
     generated_date date;
-    new_partition text;
+    new_partition_day text;
+    new_partition_org text;
 begin
 
     raise info 'Bootstrapping the database...';
 
-    insert into weather_station (name)
-    select 'weather-station-' || i
-    from generate_series(1, weather_stations) as i;
-    raise info 'Inserted % weather_station records', weather_stations;
+    -- Create org partitions for drawer_notification_org
+    raise info 'Creating org partitions for drawer_notification_org...';
+    for i in 1..orgs_count loop
+        new_partition_org := 'drawer_notification_org_' || i;
+        execute format(
+            'create table if not exists %s partition of drawer_notification_org for values in (%L);',
+            new_partition_org,
+            'org-' || i
+        );
+    end loop;
+    raise info 'Created % org partitions', orgs_count;
 
-    raise info 'Inserting weather_report records for % days with a retention delay of % days...', days_to_insert, retention_delay;
+    raise info 'Inserting drawer_notification records for % days...', days_to_insert;
     for i in 1..days_to_insert loop
 
-        if i > retention_delay then
-            select min(tablename)
-            from pg_tables
-            where schemaname = 'public' and tablename like 'weather_report_%'
-            into oldest_partition;
-            execute format('drop table %s', oldest_partition);
-            raise info 'Dropped partition %', oldest_partition;
-        end if;
+        current_day_timestamp := clock_timestamp() - (days_to_insert - i || ' days')::interval;
+        generated_date := current_day_timestamp::date;
 
-        generated_date := current_date - (days_to_insert - i);
-        new_partition := 'weather_report_' || replace(generated_date::text, '-', '_');
+        -- Create partition for drawer_notification (by day)
+        new_partition_day := 'drawer_notification_' || replace(generated_date::text, '-', '_');
         execute format(
-            'create table %s partition of weather_report for values from (%L) to (%L);',
-            new_partition,
+            'create table if not exists %s partition of drawer_notification for values from (%L) to (%L);',
+            new_partition_day,
             generated_date::text,
             (generated_date + 1)::text
         );
-        raise info 'Created partition %', new_partition;
+        raise info 'Created partition %', new_partition_day;
 
-        with ranked_weather_stations as (
-            select id, rank() over (order by name) as rank
-            from weather_station
-        )
-        insert into weather_report (data, received_at, weather_station_id)
+        -- Insert events for the day
+        insert into event (created, org_id, bundle_id, bundle_display_name, application_id, application_display_name, event_type_display_name, payload)
         select
-            md5(random()::text),
-            clock_timestamp() - (days_to_insert - i || ' days')::interval,
-            (select id from ranked_weather_stations where rank = j % weather_stations + 1)
-        from generate_series(1, daily_weather_report_records) as j;
-        raise info 'Day % - Inserted weather_report records', i;
+            current_day_timestamp,
+            'org-' || ((j % orgs_count) + 1),
+            gen_random_uuid(),
+            'bundle-' || ((j % 10) + 1),
+            gen_random_uuid(),
+            'app-' || ((j % 20) + 1),
+            'event-type-' || ((j % 5) + 1),
+            '{"data": "' || md5(random()::text) || '"}'
+        from generate_series(1, daily_event_records) as j;
+
+        -- Insert drawer_notifications for each event, for each user in the org
+        insert into drawer_notification (org_id, user_id, event_id, read, created)
+        select
+            e.org_id,
+            'user-' || u.user_num,
+            e.id,
+            false,
+            e.created
+        from event e
+        cross join lateral generate_series(1, users_per_org) as u(user_num)
+        where date(e.created) = generated_date;
+
+        -- Insert into drawer_notification_org (same data, different partitioning)
+        insert into drawer_notification_org (org_id, user_id, event_id, read, created)
+        select
+            e.org_id,
+            'user-' || u.user_num,
+            e.id,
+            false,
+            e.created
+        from event e
+        cross join lateral generate_series(1, users_per_org) as u(user_num)
+        where date(e.created) = generated_date;
+
+        raise info 'Day % - Inserted event and drawer_notification records', i;
 
     end loop;
-    raise info 'Done inserting all weather_report records';
 
+    raise info 'Done inserting all records';
     raise info 'Done bootstrapping the database';
 
 end;
 $$;
 
-call init(100, 60, 1000000, 30);
-
-create function check_weather_report_unique_id()
-    returns trigger as $$
-begin
-    if exists (select 1 from weather_report where id = new.id) then
-        raise exception 'Duplicate weather_report id: %', new.id;
-    end if;
-    return new;
-end;
-$$ language plpgsql;
-
-create trigger weather_report_unique_id
-before insert on weather_report
-for each row execute function check_weather_report_unique_id();
+-- call init(10, 100, 10, 100000);

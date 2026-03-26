@@ -7,21 +7,25 @@ CREATE FUNCTION
 VACUUM
 === Scenario 1: Baseline (PK only) ===
 Query: Find events for org where user-50 exists in users array
-                                                                   QUERY PLAN                                                                    
--------------------------------------------------------------------------------------------------------------------------------------------------
- Gather  (cost=1000.00..81488.74 rows=1018 width=549) (actual time=0.893..3125.071 rows=100000 loops=1)
+                                                                    QUERY PLAN                                                                    
+--------------------------------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=1000.00..121279.24 rows=1516 width=549) (actual time=3.221..5326.572 rows=150000 loops=1)
    Workers Planned: 2
    Workers Launched: 2
-   Buffers: shared hit=256 read=73881
-   ->  Parallel Seq Scan on drawer_notification_jsonb  (cost=0.00..80386.94 rows=424 width=549) (actual time=0.233..3106.526 rows=33333 loops=3)
+   Buffers: shared hit=256 read=110495
+   ->  Parallel Seq Scan on drawer_notification_jsonb  (cost=0.00..120127.64 rows=632 width=549) (actual time=3.159..5298.093 rows=50000 loops=3)
          Filter: ((users @> '[{"user_id": "user-50"}]'::jsonb) AND ((org_id)::text = 'org-5'::text))
-         Rows Removed by Filter: 300000
-         Buffers: shared hit=256 read=73881
+         Rows Removed by Filter: 450000
+         Buffers: shared hit=256 read=110495
  Planning:
-   Buffers: shared hit=33
- Planning Time: 0.250 ms
- Execution Time: 3127.373 ms
-(12 rows)
+   Buffers: shared hit=34 read=1
+ Planning Time: 0.501 ms
+ JIT:
+   Functions: 6
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.717 ms (Deform 0.167 ms), Inlining 0.000 ms, Optimization 0.698 ms, Emission 8.298 ms, Total 9.713 ms
+ Execution Time: 5351.830 ms
+(16 rows)
 
 === Scenario 1: Done
 
@@ -34,21 +38,25 @@ CREATE INDEX
 VACUUM
 === Scenario 2: B-tree on org_id ===
 Query: Find events for org where user-50 exists in users array
-                                                                       QUERY PLAN                                                                       
---------------------------------------------------------------------------------------------------------------------------------------------------------
- Bitmap Heap Scan on drawer_notification_jsonb  (cost=1082.29..80659.25 rows=989 width=549) (actual time=11.443..714.441 rows=100000 loops=1)
-   Recheck Cond: ((org_id)::text = 'org-5'::text)
-   Filter: (users @> '[{"user_id": "user-50"}]'::jsonb)
-   Heap Blocks: exact=56123
-   Buffers: shared read=56210 written=23
-   ->  Bitmap Index Scan on ix_drawer_notification_jsonb_org_id  (cost=0.00..1082.04 rows=98882 width=0) (actual time=5.461..5.463 rows=100000 loops=1)
-         Index Cond: ((org_id)::text = 'org-5'::text)
-         Buffers: shared read=87
+                                                                    QUERY PLAN                                                                    
+--------------------------------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=1000.00..121270.50 rows=1454 width=549) (actual time=4.795..4667.738 rows=150000 loops=1)
+   Workers Planned: 2
+   Workers Launched: 2
+   Buffers: shared hit=672 read=110079
+   ->  Parallel Seq Scan on drawer_notification_jsonb  (cost=0.00..120125.10 rows=606 width=549) (actual time=3.697..4629.178 rows=50000 loops=3)
+         Filter: ((users @> '[{"user_id": "user-50"}]'::jsonb) AND ((org_id)::text = 'org-5'::text))
+         Rows Removed by Filter: 450000
+         Buffers: shared hit=672 read=110079
  Planning:
    Buffers: shared hit=31
- Planning Time: 0.154 ms
- Execution Time: 716.380 ms
-(12 rows)
+ Planning Time: 0.384 ms
+ JIT:
+   Functions: 6
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.962 ms (Deform 0.242 ms), Inlining 0.000 ms, Optimization 0.891 ms, Emission 9.787 ms, Total 11.640 ms
+ Execution Time: 4671.933 ms
+(16 rows)
 
 === Scenario 2: Done
 
@@ -63,23 +71,23 @@ VACUUM
 Query: Find events for org where user-50 exists in users array
                                                                              QUERY PLAN                                                                             
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Bitmap Heap Scan on drawer_notification_jsonb  (cost=4579.12..8252.78 rows=1008 width=549) (actual time=128.010..2315.518 rows=100000 loops=1)
+ Bitmap Heap Scan on drawer_notification_jsonb  (cost=6707.03..12062.68 rows=1468 width=549) (actual time=242.960..6094.994 rows=150000 loops=1)
    Recheck Cond: ((users @> '[{"user_id": "user-50"}]'::jsonb) AND ((org_id)::text = 'org-5'::text))
-   Rows Removed by Index Recheck: 291906
-   Heap Blocks: exact=31125 lossy=24998
-   Buffers: shared hit=310 read=56749 written=12895
-   ->  BitmapAnd  (cost=4579.12..4579.12 rows=1008 width=0) (actual time=121.768..121.770 rows=0 loops=1)
-         Buffers: shared hit=310 read=626
-         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_users_gin  (cost=0.00..1213.83 rows=10002 width=0) (actual time=46.409..46.410 rows=1000000 loops=1)
+   Rows Removed by Index Recheck: 739099
+   Heap Blocks: exact=34054 lossy=49971
+   Buffers: shared hit=363 read=85089 written=15014
+   ->  BitmapAnd  (cost=6707.03..6707.03 rows=1468 width=0) (actual time=235.088..235.090 rows=0 loops=1)
+         Buffers: shared hit=363 read=1064 written=783
+         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_users_gin  (cost=0.00..1816.34 rows=15004 width=0) (actual time=95.718..95.719 rows=1500000 loops=1)
                Index Cond: (users @> '[{"user_id": "user-50"}]'::jsonb)
-               Buffers: shared hit=310
-         ->  Bitmap Index Scan on pk_drawer_notification_jsonb  (cost=0.00..3364.54 rows=100815 width=0) (actual time=70.852..70.853 rows=100000 loops=1)
+               Buffers: shared hit=363 read=97
+         ->  Bitmap Index Scan on pk_drawer_notification_jsonb  (cost=0.00..4889.70 rows=146837 width=0) (actual time=127.800..127.800 rows=150000 loops=1)
                Index Cond: ((org_id)::text = 'org-5'::text)
-               Buffers: shared read=626
+               Buffers: shared read=967 written=783
  Planning:
-   Buffers: shared hit=35 read=2
- Planning Time: 0.208 ms
- Execution Time: 2317.584 ms
+   Buffers: shared hit=32 read=5
+ Planning Time: 1.384 ms
+ Execution Time: 6100.299 ms
 (17 rows)
 
 === Scenario 3: Done
@@ -93,25 +101,25 @@ CREATE INDEX
 VACUUM
 === Scenario 4: GIN on users (jsonb_path_ops) ===
 Query: Find events for org where user-50 exists in users array
-                                                                                 QUERY PLAN                                                                                 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Bitmap Heap Scan on drawer_notification_jsonb  (cost=3893.84..7459.12 rows=977 width=549) (actual time=52.429..2266.479 rows=100000 loops=1)
+                                                                                  QUERY PLAN                                                                                  
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on drawer_notification_jsonb  (cost=5954.28..11428.78 rows=1503 width=549) (actual time=159.731..5903.868 rows=150000 loops=1)
    Recheck Cond: ((users @> '[{"user_id": "user-50"}]'::jsonb) AND ((org_id)::text = 'org-5'::text))
-   Rows Removed by Index Recheck: 291906
-   Heap Blocks: exact=31125 lossy=24998
-   Buffers: shared hit=142 read=56749 written=13631
-   ->  BitmapAnd  (cost=3893.84..3893.84 rows=977 width=0) (actual time=48.702..48.704 rows=0 loops=1)
-         Buffers: shared hit=142 read=626
-         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_users_gin_path_ops  (cost=0.00..631.91 rows=10000 width=0) (actual time=38.487..38.487 rows=1000000 loops=1)
+   Rows Removed by Index Recheck: 739099
+   Heap Blocks: exact=34054 lossy=49971
+   Buffers: shared hit=166 read=85038 written=15321
+   ->  BitmapAnd  (cost=5954.28..5954.28 rows=1503 width=0) (actual time=152.861..152.863 rows=0 loops=1)
+         Buffers: shared hit=166 read=1013 written=840
+         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_users_gin_path_ops  (cost=0.00..945.66 rows=14999 width=0) (actual time=110.439..110.440 rows=1500000 loops=1)
                Index Cond: (users @> '[{"user_id": "user-50"}]'::jsonb)
-               Buffers: shared hit=142
-         ->  Bitmap Index Scan on pk_drawer_notification_jsonb  (cost=0.00..3261.19 rows=97702 width=0) (actual time=8.109..8.110 rows=100000 loops=1)
+               Buffers: shared hit=166 read=46
+         ->  Bitmap Index Scan on pk_drawer_notification_jsonb  (cost=0.00..5007.62 rows=150292 width=0) (actual time=34.878..34.878 rows=150000 loops=1)
                Index Cond: ((org_id)::text = 'org-5'::text)
-               Buffers: shared read=626
+               Buffers: shared read=967 written=840
  Planning:
-   Buffers: shared hit=32 read=5
- Planning Time: 0.493 ms
- Execution Time: 2268.576 ms
+   Buffers: shared hit=36 read=3
+ Planning Time: 0.399 ms
+ Execution Time: 5909.279 ms
 (17 rows)
 
 === Scenario 4: Done
@@ -128,23 +136,24 @@ VACUUM
 Query: Find events for org where user-50 exists in users array
                                                                              QUERY PLAN                                                                             
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Bitmap Heap Scan on drawer_notification_jsonb  (cost=2335.40..6061.42 rows=1024 width=549) (actual time=81.735..840.576 rows=100000 loops=1)
+ Bitmap Heap Scan on drawer_notification_jsonb  (cost=3440.41..8858.99 rows=1486 width=549) (actual time=118.415..1412.015 rows=150000 loops=1)
    Recheck Cond: (((org_id)::text = 'org-5'::text) AND (users @> '[{"user_id": "user-50"}]'::jsonb))
-   Heap Blocks: exact=56123
-   Buffers: shared hit=310 read=56210 written=14240
-   ->  BitmapAnd  (cost=2335.40..2335.40 rows=1024 width=0) (actual time=75.449..75.451 rows=0 loops=1)
-         Buffers: shared hit=310 read=87
-         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_org_id  (cost=0.00..1120.79 rows=102449 width=0) (actual time=15.587..15.587 rows=100000 loops=1)
+   Rows Removed by Index Recheck: 389342
+   Heap Blocks: exact=50918 lossy=33107
+   Buffers: shared hit=344 read=84270 written=15685
+   ->  BitmapAnd  (cost=3440.41..3440.41 rows=1486 width=0) (actual time=111.494..111.497 rows=0 loops=1)
+         Buffers: shared hit=344 read=245 written=153
+         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_org_id  (cost=0.00..1623.08 rows=148620 width=0) (actual time=15.929..15.929 rows=150000 loops=1)
                Index Cond: ((org_id)::text = 'org-5'::text)
-               Buffers: shared read=87
-         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_users_gin  (cost=0.00..1213.85 rows=10005 width=0) (actual time=58.225..58.225 rows=1000000 loops=1)
+               Buffers: shared read=129 written=37
+         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_users_gin  (cost=0.00..1816.34 rows=15002 width=0) (actual time=92.969..92.969 rows=1500000 loops=1)
                Index Cond: (users @> '[{"user_id": "user-50"}]'::jsonb)
-               Buffers: shared hit=310
+               Buffers: shared hit=344 read=116 written=116
  Planning:
-   Buffers: shared hit=40
- Planning Time: 0.385 ms
- Execution Time: 842.669 ms
-(16 rows)
+   Buffers: shared hit=36 read=2
+ Planning Time: 0.435 ms
+ Execution Time: 1415.667 ms
+(17 rows)
 
 === Scenario 5: Done
 
@@ -160,23 +169,23 @@ VACUUM
 Query: Find events for org where user-50 exists in users array
                                                                                  QUERY PLAN                                                                                 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Bitmap Heap Scan on drawer_notification_jsonb  (cost=1696.33..5254.61 rows=975 width=549) (actual time=70.160..2259.303 rows=100000 loops=1)
+ Bitmap Heap Scan on drawer_notification_jsonb  (cost=2595.04..8090.49 rows=1509 width=549) (actual time=88.766..5426.315 rows=150000 loops=1)
    Recheck Cond: ((users @> '[{"user_id": "user-50"}]'::jsonb) AND ((org_id)::text = 'org-5'::text))
-   Rows Removed by Index Recheck: 291906
-   Heap Blocks: exact=31125 lossy=24998
-   Buffers: shared hit=142 read=56210 written=13790
-   ->  BitmapAnd  (cost=1696.33..1696.33 rows=975 width=0) (actual time=66.539..66.541 rows=0 loops=1)
-         Buffers: shared hit=142 read=87
-         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_users_gin_path_ops  (cost=0.00..631.91 rows=10000 width=0) (actual time=59.417..59.418 rows=1000000 loops=1)
+   Rows Removed by Index Recheck: 682964
+   Heap Blocks: exact=34054 lossy=49971
+   Buffers: shared hit=164 read=84202 written=15316
+   ->  BitmapAnd  (cost=2595.04..2595.04 rows=1509 width=0) (actual time=83.123..83.125 rows=0 loops=1)
+         Buffers: shared hit=164 read=177 written=86
+         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_users_gin_path_ops  (cost=0.00..945.65 rows=14998 width=0) (actual time=68.951..68.951 rows=1500000 loops=1)
                Index Cond: (users @> '[{"user_id": "user-50"}]'::jsonb)
-               Buffers: shared hit=142
-         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_org_id  (cost=0.00..1063.68 rows=97501 width=0) (actual time=5.094..5.095 rows=100000 loops=1)
+               Buffers: shared hit=164 read=48
+         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_org_id  (cost=0.00..1648.38 rows=150927 width=0) (actual time=9.072..9.072 rows=150000 loops=1)
                Index Cond: ((org_id)::text = 'org-5'::text)
-               Buffers: shared read=87
+               Buffers: shared read=129 written=86
  Planning:
    Buffers: shared hit=36 read=2
- Planning Time: 0.449 ms
- Execution Time: 2261.349 ms
+ Planning Time: 0.196 ms
+ Execution Time: 5431.323 ms
 (17 rows)
 
 === Scenario 6: Done
@@ -185,60 +194,62 @@ Query: Find events for org where user-50 exists in users array
 === Testing additional query patterns ===
 
 Query: Find all events for an org (no JSONB filter)
-                                                                        QUERY PLAN                                                                        
-----------------------------------------------------------------------------------------------------------------------------------------------------------
- Bitmap Heap Scan on drawer_notification_jsonb  (cost=1088.06..80408.98 rows=97501 width=549) (actual time=38.136..218.020 rows=100000 loops=1)
-   Recheck Cond: ((org_id)::text = 'org-5'::text)
-   Heap Blocks: exact=56123
-   Buffers: shared read=56210
-   ->  Bitmap Index Scan on ix_drawer_notification_jsonb_org_id  (cost=0.00..1063.68 rows=97501 width=0) (actual time=19.380..19.381 rows=100000 loops=1)
-         Index Cond: ((org_id)::text = 'org-5'::text)
-         Buffers: shared read=87
- Planning Time: 0.159 ms
- Execution Time: 220.237 ms
-(9 rows)
+                                                              QUERY PLAN                                                              
+--------------------------------------------------------------------------------------------------------------------------------------
+ Seq Scan on drawer_notification_jsonb  (cost=0.00..129498.19 rows=150927 width=549) (actual time=1.452..290.078 rows=150000 loops=1)
+   Filter: ((org_id)::text = 'org-5'::text)
+   Rows Removed by Filter: 1350000
+   Buffers: shared hit=16349 read=94402
+ Planning Time: 0.097 ms
+ JIT:
+   Functions: 2
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.186 ms (Deform 0.040 ms), Inlining 0.000 ms, Optimization 0.152 ms, Emission 1.287 ms, Total 1.626 ms
+ Execution Time: 294.193 ms
+(10 rows)
 
 
 Query: Find events where user has read=false
                                                                                  QUERY PLAN                                                                                  
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- Bitmap Heap Scan on drawer_notification_jsonb  (cost=2278.25..5836.53 rows=975 width=549) (actual time=60.926..835.818 rows=100000 loops=1)
+ Bitmap Heap Scan on drawer_notification_jsonb  (cost=3465.70..8961.15 rows=1509 width=549) (actual time=104.944..1412.956 rows=150000 loops=1)
    Recheck Cond: (((org_id)::text = 'org-5'::text) AND (users @> '[{"read": false, "user_id": "user-50"}]'::jsonb))
-   Heap Blocks: exact=56123
-   Buffers: shared hit=29 read=56491
-   ->  BitmapAnd  (cost=2278.25..2278.25 rows=975 width=0) (actual time=54.719..54.721 rows=0 loops=1)
-         Buffers: shared hit=29 read=368
-         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_org_id  (cost=0.00..1063.68 rows=97501 width=0) (actual time=5.482..5.482 rows=100000 loops=1)
+   Rows Removed by Index Recheck: 389342
+   Heap Blocks: exact=50918 lossy=33107
+   Buffers: shared hit=39 read=84575
+   ->  BitmapAnd  (cost=3465.70..3465.70 rows=1509 width=0) (actual time=98.587..98.589 rows=0 loops=1)
+         Buffers: shared hit=39 read=550
+         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_org_id  (cost=0.00..1648.38 rows=150927 width=0) (actual time=8.799..8.800 rows=150000 loops=1)
                Index Cond: ((org_id)::text = 'org-5'::text)
-               Buffers: shared read=87
-         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_users_gin_path_ops  (cost=0.00..1213.83 rows=10000 width=0) (actual time=47.590..47.590 rows=1000000 loops=1)
+               Buffers: shared read=129
+         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_users_gin_path_ops  (cost=0.00..1816.31 rows=14998 width=0) (actual time=87.710..87.710 rows=1500000 loops=1)
                Index Cond: (users @> '[{"read": false, "user_id": "user-50"}]'::jsonb)
-               Buffers: shared hit=29 read=281
+               Buffers: shared hit=39 read=421
  Planning:
    Buffers: shared read=1
- Planning Time: 0.313 ms
- Execution Time: 837.848 ms
-(16 rows)
+ Planning Time: 0.507 ms
+ Execution Time: 1416.367 ms
+(17 rows)
 
 
 Query: Count events per org where specific user exists
                                                                                  QUERY PLAN                                                                                 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- HashAggregate  (cost=28293.62..28293.72 rows=10 width=14) (actual time=5412.822..5412.825 rows=10 loops=1)
+ HashAggregate  (cost=42391.87..42391.97 rows=10 width=14) (actual time=9541.338..9541.342 rows=10 loops=1)
    Group Key: org_id
    Batches: 1  Memory Usage: 24kB
-   Buffers: shared hit=1 read=74278
-   ->  Bitmap Heap Scan on drawer_notification_jsonb  (cost=634.41..28243.62 rows=10000 width=6) (actual time=60.633..5302.682 rows=1000000 loops=1)
+   Buffers: shared hit=1 read=110962
+   ->  Bitmap Heap Scan on drawer_notification_jsonb  (cost=949.40..42316.88 rows=14998 width=6) (actual time=77.299..9347.887 rows=1500000 loops=1)
          Recheck Cond: (users @> '[{"user_id": "user-50"}]'::jsonb)
-         Heap Blocks: exact=41112 lossy=33025
-         Buffers: shared hit=1 read=74278
-         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_users_gin_path_ops  (cost=0.00..631.91 rows=10000 width=0) (actual time=56.252..56.252 rows=1000000 loops=1)
+         Heap Blocks: exact=44829 lossy=65922
+         Buffers: shared hit=1 read=110962
+         ->  Bitmap Index Scan on ix_drawer_notification_jsonb_users_gin_path_ops  (cost=0.00..945.65 rows=14998 width=0) (actual time=70.511..70.512 rows=1500000 loops=1)
                Index Cond: (users @> '[{"user_id": "user-50"}]'::jsonb)
-               Buffers: shared hit=1 read=141
+               Buffers: shared hit=1 read=211
  Planning:
-   Buffers: shared hit=3 read=9
- Planning Time: 1.550 ms
- Execution Time: 5412.895 ms
+   Buffers: shared hit=3 read=9 dirtied=1
+ Planning Time: 0.589 ms
+ Execution Time: 9541.400 ms
 (15 rows)
 
 

@@ -1,0 +1,531 @@
+CREATE FUNCTION
+ drop_all_test_indexes_org 
+---------------------------
+ 
+(1 row)
+
+VACUUM
+=== Scenario 1: Baseline - drawer_notification_org (partitioned by org) ===
+Query: Count notifications for org and user
+                                                                                      QUERY PLAN                                                                                      
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=219908.55..219908.56 rows=1 width=8) (actual time=581.127..598.326 rows=1 loops=1)
+   Buffers: shared read=125000
+   ->  Gather  (cost=219908.33..219908.54 rows=2 width=8) (actual time=580.898..598.307 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared read=125000
+         ->  Partial Aggregate  (cost=218908.33..218908.34 rows=1 width=8) (actual time=563.005..563.006 rows=1 loops=3)
+               Buffers: shared read=125000
+               ->  Parallel Seq Scan on drawer_notification_org_5 drawer_notification_org  (cost=0.00..218750.00 rows=63333 width=0) (actual time=51.412..561.262 rows=50000 loops=3)
+                     Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Rows Removed by Filter: 4950000
+                     Buffers: shared read=125000
+ Planning:
+   Buffers: shared hit=29 read=6
+ Planning Time: 0.386 ms
+ JIT:
+   Functions: 17
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 1.241 ms (Deform 0.199 ms), Inlining 0.000 ms, Optimization 0.850 ms, Emission 22.257 ms, Total 24.349 ms
+ Execution Time: 740.619 ms
+(20 rows)
+
+Query: Select notifications for org and user (with LIMIT)
+                                                                                      QUERY PLAN                                                                                       
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=221435.29..221437.63 rows=20 width=38) (actual time=483.212..487.970 rows=20 loops=1)
+   Buffers: shared hit=168 read=124904
+   ->  Gather Merge  (cost=221435.29..236214.02 rows=126666 width=38) (actual time=481.259..486.014 rows=20 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=168 read=124904
+         ->  Sort  (cost=220435.27..220593.60 rows=63333 width=38) (actual time=451.508..451.510 rows=14 loops=3)
+               Sort Key: drawer_notification_org.created DESC
+               Sort Method: top-N heapsort  Memory: 26kB
+               Buffers: shared hit=168 read=124904
+               Worker 0:  Sort Method: top-N heapsort  Memory: 26kB
+               Worker 1:  Sort Method: top-N heapsort  Memory: 26kB
+               ->  Parallel Seq Scan on drawer_notification_org_5 drawer_notification_org  (cost=0.00..218750.00 rows=63333 width=38) (actual time=31.698..448.486 rows=50000 loops=3)
+                     Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Rows Removed by Filter: 4950000
+                     Buffers: shared hit=96 read=124904
+ Planning:
+   Buffers: shared hit=20
+ Planning Time: 0.197 ms
+ JIT:
+   Functions: 7
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.703 ms (Deform 0.191 ms), Inlining 0.000 ms, Optimization 0.691 ms, Emission 28.517 ms, Total 29.911 ms
+ Execution Time: 488.236 ms
+(24 rows)
+
+=== Scenario 1: Done
+
+ drop_all_test_indexes_org 
+---------------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 2: B-tree on org_id ===
+Query: Count notifications for org and user
+                                                                                      QUERY PLAN                                                                                      
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=219906.99..219907.00 rows=1 width=8) (actual time=622.066..626.426 rows=1 loops=1)
+   Buffers: shared hit=256 read=124744
+   ->  Gather  (cost=219906.77..219906.98 rows=2 width=8) (actual time=621.891..626.409 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=256 read=124744
+         ->  Partial Aggregate  (cost=218906.77..218906.78 rows=1 width=8) (actual time=599.487..599.489 rows=1 loops=3)
+               Buffers: shared hit=256 read=124744
+               ->  Parallel Seq Scan on drawer_notification_org_5 drawer_notification_org  (cost=0.00..218750.00 rows=62708 width=0) (actual time=25.578..597.813 rows=50000 loops=3)
+                     Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Rows Removed by Filter: 4950000
+                     Buffers: shared hit=256 read=124744
+ Planning:
+   Buffers: shared hit=29
+ Planning Time: 0.201 ms
+ JIT:
+   Functions: 17
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 1.186 ms (Deform 0.143 ms), Inlining 0.000 ms, Optimization 0.742 ms, Emission 10.391 ms, Total 12.319 ms
+ Execution Time: 626.747 ms
+(20 rows)
+
+Query: Select notifications for org and user (with LIMIT)
+                                                                                      QUERY PLAN                                                                                       
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=221418.66..221420.99 rows=20 width=38) (actual time=598.933..602.508 rows=20 loops=1)
+   Buffers: shared hit=424 read=124648
+   ->  Gather Merge  (cost=221418.66..236051.55 rows=125416 width=38) (actual time=597.166..600.739 rows=20 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=424 read=124648
+         ->  Sort  (cost=220418.64..220575.41 rows=62708 width=38) (actual time=568.004..568.006 rows=20 loops=3)
+               Sort Key: drawer_notification_org.created DESC
+               Sort Method: top-N heapsort  Memory: 26kB
+               Buffers: shared hit=424 read=124648
+               Worker 0:  Sort Method: top-N heapsort  Memory: 26kB
+               Worker 1:  Sort Method: top-N heapsort  Memory: 26kB
+               ->  Parallel Seq Scan on drawer_notification_org_5 drawer_notification_org  (cost=0.00..218750.00 rows=62708 width=38) (actual time=32.223..554.677 rows=50000 loops=3)
+                     Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Rows Removed by Filter: 4950000
+                     Buffers: shared hit=352 read=124648
+ Planning:
+   Buffers: shared hit=9
+ Planning Time: 0.178 ms
+ JIT:
+   Functions: 7
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.526 ms (Deform 0.131 ms), Inlining 0.000 ms, Optimization 0.510 ms, Emission 6.353 ms, Total 7.389 ms
+ Execution Time: 602.749 ms
+(24 rows)
+
+=== Scenario 2: Done
+
+ drop_all_test_indexes_org 
+---------------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 3: B-tree on user_id ===
+Query: Count notifications for org and user
+                                                                                          QUERY PLAN                                                                                           
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=193878.52..193878.53 rows=1 width=8) (actual time=48.155..58.817 rows=1 loops=1)
+   Buffers: shared read=1389
+   ->  Gather  (cost=193878.31..193878.52 rows=2 width=8) (actual time=48.109..58.805 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared read=1389
+         ->  Partial Aggregate  (cost=192878.31..192878.32 rows=1 width=8) (actual time=28.947..28.949 rows=1 loops=3)
+               Buffers: shared read=1389
+               ->  Parallel Bitmap Heap Scan on drawer_notification_org_5 drawer_notification_org  (cost=1584.93..192730.39 rows=59167 width=0) (actual time=6.803..26.299 rows=50000 loops=3)
+                     Recheck Cond: ((user_id)::text = 'user-50'::text)
+                     Filter: ((org_id)::text = 'org-5'::text)
+                     Heap Blocks: exact=809
+                     Buffers: shared read=1389
+                     ->  Bitmap Index Scan on drawer_notification_org_5_user_id_idx  (cost=0.00..1549.43 rows=142000 width=0) (actual time=8.266..8.266 rows=150000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=129
+ Planning:
+   Buffers: shared hit=29
+ Planning Time: 0.368 ms
+ JIT:
+   Functions: 23
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 1.118 ms (Deform 0.235 ms), Inlining 0.000 ms, Optimization 0.811 ms, Emission 10.862 ms, Total 12.792 ms
+ Execution Time: 59.521 ms
+(24 rows)
+
+Query: Select notifications for org and user (with LIMIT)
+                                                                                          QUERY PLAN                                                                                           
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=195304.83..195307.16 rows=20 width=38) (actual time=32.421..35.131 rows=20 loops=1)
+   Buffers: shared hit=1403
+   ->  Gather Merge  (cost=195304.83..209111.42 rows=118334 width=38) (actual time=29.580..32.286 rows=20 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=1403
+         ->  Sort  (cost=194304.80..194452.72 rows=59167 width=38) (actual time=6.400..6.402 rows=7 loops=3)
+               Sort Key: drawer_notification_org.created DESC
+               Sort Method: top-N heapsort  Memory: 26kB
+               Buffers: shared hit=1403
+               Worker 0:  Sort Method: quicksort  Memory: 25kB
+               Worker 1:  Sort Method: quicksort  Memory: 25kB
+               ->  Parallel Bitmap Heap Scan on drawer_notification_org_5 drawer_notification_org  (cost=1584.93..192730.39 rows=59167 width=38) (actual time=1.086..4.280 rows=50000 loops=3)
+                     Recheck Cond: ((user_id)::text = 'user-50'::text)
+                     Filter: ((org_id)::text = 'org-5'::text)
+                     Heap Blocks: exact=1260
+                     Buffers: shared hit=1389
+                     ->  Bitmap Index Scan on drawer_notification_org_5_user_id_idx  (cost=0.00..1549.43 rows=142000 width=0) (actual time=3.010..3.011 rows=150000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared hit=129
+ Planning:
+   Buffers: shared hit=9
+ Planning Time: 0.260 ms
+ JIT:
+   Functions: 13
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.832 ms (Deform 0.246 ms), Inlining 0.000 ms, Optimization 0.237 ms, Emission 2.611 ms, Total 3.680 ms
+ Execution Time: 35.527 ms
+(28 rows)
+
+=== Scenario 3: Done
+
+ drop_all_test_indexes_org 
+---------------------------
+ 
+(1 row)
+
+CREATE INDEX
+CREATE INDEX
+VACUUM
+=== Scenario 4: Two separate B-tree indexes (org_id + user_id) ===
+Query: Count notifications for org and user
+                                                                                          QUERY PLAN                                                                                           
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=197818.86..197818.87 rows=1 width=8) (actual time=36.605..39.199 rows=1 loops=1)
+   Buffers: shared hit=1260 read=129
+   ->  Gather  (cost=197818.64..197818.85 rows=2 width=8) (actual time=32.531..39.176 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=1260 read=129
+         ->  Partial Aggregate  (cost=196818.64..196818.65 rows=1 width=8) (actual time=13.519..13.521 rows=1 loops=3)
+               Buffers: shared hit=1260 read=129
+               ->  Parallel Bitmap Heap Scan on drawer_notification_org_5 drawer_notification_org  (cost=1835.31..196647.29 rows=68542 width=0) (actual time=7.138..11.008 rows=50000 loops=3)
+                     Recheck Cond: ((user_id)::text = 'user-50'::text)
+                     Filter: ((org_id)::text = 'org-5'::text)
+                     Heap Blocks: exact=1050
+                     Buffers: shared hit=1260 read=129
+                     ->  Bitmap Index Scan on drawer_notification_org_5_user_id_idx  (cost=0.00..1794.18 rows=164500 width=0) (actual time=14.139..14.140 rows=150000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=129
+ Planning:
+   Buffers: shared hit=43
+ Planning Time: 1.080 ms
+ JIT:
+   Functions: 23
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 1.637 ms (Deform 0.442 ms), Inlining 0.000 ms, Optimization 0.776 ms, Emission 9.542 ms, Total 11.955 ms
+ Execution Time: 40.416 ms
+(24 rows)
+
+Query: Select notifications for org and user (with LIMIT)
+                                                                                          QUERY PLAN                                                                                           
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=199471.19..199473.52 rows=20 width=38) (actual time=31.549..35.964 rows=20 loops=1)
+   Buffers: shared hit=1403
+   ->  Gather Merge  (cost=199471.19..215465.44 rows=137084 width=38) (actual time=29.614..34.027 rows=20 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=1403
+         ->  Sort  (cost=198471.16..198642.52 rows=68542 width=38) (actual time=6.913..6.915 rows=7 loops=3)
+               Sort Key: drawer_notification_org.created DESC
+               Sort Method: top-N heapsort  Memory: 26kB
+               Buffers: shared hit=1403
+               Worker 0:  Sort Method: quicksort  Memory: 25kB
+               Worker 1:  Sort Method: quicksort  Memory: 25kB
+               ->  Parallel Bitmap Heap Scan on drawer_notification_org_5 drawer_notification_org  (cost=1835.31..196647.29 rows=68542 width=38) (actual time=1.010..4.528 rows=50000 loops=3)
+                     Recheck Cond: ((user_id)::text = 'user-50'::text)
+                     Filter: ((org_id)::text = 'org-5'::text)
+                     Heap Blocks: exact=1260
+                     Buffers: shared hit=1389
+                     ->  Bitmap Index Scan on drawer_notification_org_5_user_id_idx  (cost=0.00..1794.18 rows=164500 width=0) (actual time=2.799..2.799 rows=150000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared hit=129
+ Planning:
+   Buffers: shared hit=9
+ Planning Time: 0.220 ms
+ JIT:
+   Functions: 13
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.853 ms (Deform 0.269 ms), Inlining 0.000 ms, Optimization 0.162 ms, Emission 1.782 ms, Total 2.797 ms
+ Execution Time: 36.278 ms
+(28 rows)
+
+=== Scenario 4: Done
+
+ drop_all_test_indexes_org 
+---------------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 5: Composite B-tree (org_id, user_id) ===
+Query: Count notifications for org and user
+                                                                                                       QUERY PLAN                                                                                                        
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=3933.18..3933.20 rows=1 width=8) (actual time=33.224..33.226 rows=1 loops=1)
+   Buffers: shared hit=4 read=131
+   ->  Index Only Scan using drawer_notification_org_5_org_id_user_id_idx on drawer_notification_org_5 drawer_notification_org  (cost=0.43..3554.43 rows=151500 width=0) (actual time=2.141..23.280 rows=150000 loops=1)
+         Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+         Heap Fetches: 0
+         Buffers: shared hit=4 read=131
+ Planning:
+   Buffers: shared hit=32
+ Planning Time: 0.204 ms
+ Execution Time: 33.258 ms
+(10 rows)
+
+Query: Select notifications for org and user (with LIMIT)
+                                                                                                         QUERY PLAN                                                                                                          
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=173382.42..173382.47 rows=20 width=38) (actual time=24.108..24.111 rows=20 loops=1)
+   Buffers: shared hit=1391
+   ->  Sort  (cost=173382.42..173761.17 rows=151500 width=38) (actual time=20.479..20.480 rows=20 loops=1)
+         Sort Key: drawer_notification_org.created DESC
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=1391
+         ->  Index Scan using drawer_notification_org_5_org_id_user_id_idx on drawer_notification_org_5 drawer_notification_org  (cost=0.43..169351.06 rows=151500 width=38) (actual time=0.045..12.131 rows=150000 loops=1)
+               Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+               Buffers: shared hit=1391
+ Planning:
+   Buffers: shared hit=9
+ Planning Time: 0.354 ms
+ JIT:
+   Functions: 3
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.424 ms (Deform 0.121 ms), Inlining 0.000 ms, Optimization 0.375 ms, Emission 3.246 ms, Total 4.045 ms
+ Execution Time: 24.619 ms
+(17 rows)
+
+=== Scenario 5: Done
+
+ drop_all_test_indexes_org 
+---------------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 6: Composite B-tree (user_id, org_id) - reversed ===
+Query: Count notifications for org and user
+                                                                                                       QUERY PLAN                                                                                                       
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=3751.68..3751.70 rows=1 width=8) (actual time=9.668..9.670 rows=1 loops=1)
+   Buffers: shared hit=4 read=131
+   ->  Index Only Scan using drawer_notification_org_5_user_id_org_id_idx on drawer_notification_org_5 drawer_notification_org  (cost=0.43..3390.43 rows=144500 width=0) (actual time=0.061..6.351 rows=150000 loops=1)
+         Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+         Heap Fetches: 0
+         Buffers: shared hit=4 read=131
+ Planning:
+   Buffers: shared hit=32
+ Planning Time: 0.199 ms
+ Execution Time: 9.693 ms
+(10 rows)
+
+Query: Select notifications for org and user (with LIMIT)
+                                                                                          QUERY PLAN                                                                                           
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=196266.13..196268.47 rows=20 width=38) (actual time=41.497..44.408 rows=20 loops=1)
+   Buffers: shared hit=1405
+   ->  Gather Merge  (cost=196266.13..210315.65 rows=120416 width=38) (actual time=39.791..42.675 rows=20 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=1405
+         ->  Sort  (cost=195266.11..195416.63 rows=60208 width=38) (actual time=4.682..4.685 rows=7 loops=3)
+               Sort Key: drawer_notification_org.created DESC
+               Sort Method: top-N heapsort  Memory: 26kB
+               Buffers: shared hit=1405
+               Worker 0:  Sort Method: quicksort  Memory: 25kB
+               Worker 1:  Sort Method: quicksort  Memory: 25kB
+               ->  Parallel Bitmap Heap Scan on drawer_notification_org_5 drawer_notification_org  (cost=1981.56..193664.00 rows=60208 width=38) (actual time=0.620..2.751 rows=50000 loops=3)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Heap Blocks: exact=1260
+                     Buffers: shared hit=1391
+                     ->  Bitmap Index Scan on drawer_notification_org_5_user_id_org_id_idx  (cost=0.00..1945.43 rows=144500 width=0) (actual time=1.690..1.691 rows=150000 loops=1)
+                           Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                           Buffers: shared hit=131
+ Planning:
+   Buffers: shared hit=9
+ Planning Time: 0.090 ms
+ JIT:
+   Functions: 7
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.516 ms (Deform 0.130 ms), Inlining 0.000 ms, Optimization 0.163 ms, Emission 1.538 ms, Total 2.217 ms
+ Execution Time: 44.715 ms
+(27 rows)
+
+=== Scenario 6: Done
+
+ drop_all_test_indexes_org 
+---------------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 7: Composite B-tree (user_id, created) ===
+Query: Count notifications for org and user
+                                                                                          QUERY PLAN                                                                                          
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=191372.98..191372.99 rows=1 width=8) (actual time=37.562..41.387 rows=1 loops=1)
+   Buffers: shared hit=1260 read=131
+   ->  Gather  (cost=191372.76..191372.97 rows=2 width=8) (actual time=22.362..41.370 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=1260 read=131
+         ->  Partial Aggregate  (cost=190372.76..190372.77 rows=1 width=8) (actual time=10.619..10.622 rows=1 loops=3)
+               Buffers: shared hit=1260 read=131
+               ->  Parallel Bitmap Heap Scan on drawer_notification_org_5 drawer_notification_org  (cost=1487.31..190234.74 rows=55208 width=0) (actual time=3.304..6.310 rows=50000 loops=3)
+                     Recheck Cond: ((user_id)::text = 'user-50'::text)
+                     Filter: ((org_id)::text = 'org-5'::text)
+                     Heap Blocks: exact=1260
+                     Buffers: shared hit=1260 read=131
+                     ->  Bitmap Index Scan on drawer_notification_org_5_user_id_created_idx  (cost=0.00..1454.18 rows=132500 width=0) (actual time=7.169..7.169 rows=150000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=131
+ Planning:
+   Buffers: shared hit=32
+ Planning Time: 0.206 ms
+ JIT:
+   Functions: 23
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 1.213 ms (Deform 0.282 ms), Inlining 0.000 ms, Optimization 0.894 ms, Emission 11.237 ms, Total 13.344 ms
+ Execution Time: 41.733 ms
+(24 rows)
+
+Query: Select notifications for org and user (with LIMIT)
+                                                                                                         QUERY PLAN                                                                                                         
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.43..53.10 rows=20 width=38) (actual time=0.044..0.048 rows=20 loops=1)
+   Buffers: shared hit=3 read=1
+   ->  Index Scan Backward using drawer_notification_org_5_user_id_created_idx on drawer_notification_org_5 drawer_notification_org  (cost=0.43..348930.91 rows=132500 width=38) (actual time=0.043..0.046 rows=20 loops=1)
+         Index Cond: ((user_id)::text = 'user-50'::text)
+         Filter: ((org_id)::text = 'org-5'::text)
+         Buffers: shared hit=3 read=1
+ Planning:
+   Buffers: shared hit=9
+ Planning Time: 0.186 ms
+ Execution Time: 0.060 ms
+(10 rows)
+
+=== Scenario 7: Done
+
+=== Testing additional query patterns ===
+Query: Single org - should hit 1 partition
+                                                                            QUERY PLAN                                                                            
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on drawer_notification_org_5 drawer_notification_org  (cost=610.96..90239.69 rows=44343 width=38) (actual time=0.938..5.249 rows=50000 loops=1)
+   Recheck Cond: (((user_id)::text = 'user-50'::text) AND (created >= (CURRENT_DATE - '5 days'::interval)))
+   Filter: ((org_id)::text = 'org-5'::text)
+   Heap Blocks: exact=420
+   Buffers: shared hit=466
+   ->  Bitmap Index Scan on drawer_notification_org_5_user_id_created_idx  (cost=0.00..599.87 rows=44343 width=0) (actual time=0.884..0.885 rows=50000 loops=1)
+         Index Cond: (((user_id)::text = 'user-50'::text) AND (created >= (CURRENT_DATE - '5 days'::interval)))
+         Buffers: shared hit=46
+ Planning:
+   Buffers: shared hit=3
+ Planning Time: 0.096 ms
+ Execution Time: 6.541 ms
+(12 rows)
+
+Query: Count by org - should leverage partition pruning
+                                                                                                QUERY PLAN                                                                                                 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize GroupAggregate  (cost=2553020.14..2553022.68 rows=10 width=14) (actual time=13420.186..13426.097 rows=10 loops=1)
+   Group Key: drawer_notification_org.org_id
+   Buffers: shared hit=7932 read=1242236
+   ->  Gather Merge  (cost=2553020.14..2553022.48 rows=20 width=14) (actual time=13420.168..13426.077 rows=12 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=7932 read=1242236
+         ->  Sort  (cost=2552020.12..2552020.15 rows=10 width=14) (actual time=13402.240..13402.245 rows=4 loops=3)
+               Sort Key: drawer_notification_org.org_id
+               Sort Method: quicksort  Memory: 25kB
+               Buffers: shared hit=7932 read=1242236
+               Worker 0:  Sort Method: quicksort  Memory: 25kB
+               Worker 1:  Sort Method: quicksort  Memory: 25kB
+               ->  Partial HashAggregate  (cost=2552019.85..2552019.95 rows=10 width=14) (actual time=13402.202..13402.208 rows=4 loops=3)
+                     Group Key: drawer_notification_org.org_id
+                     Batches: 1  Memory Usage: 24kB
+                     Buffers: shared hit=7916 read=1242236
+                     Worker 0:  Batches: 1  Memory Usage: 24kB
+                     Worker 1:  Batches: 1  Memory Usage: 24kB
+                     ->  Parallel Append  (cost=0.00..2447959.67 rows=20812037 width=6) (actual time=306.451..11110.081 rows=16666667 loops=3)
+                           Buffers: shared hit=7916 read=1242236
+                           ->  Parallel Seq Scan on drawer_notification_org_10 drawer_notification_org_2  (cost=0.00..234524.48 rows=2052245 width=7) (actual time=367.031..3151.251 rows=5000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Rows Removed by Filter: 10000000
+                                 Buffers: shared hit=2240 read=122912
+                           ->  Parallel Seq Scan on drawer_notification_org_1  (cost=0.00..234375.00 rows=2102083 width=6) (actual time=248.026..2906.573 rows=5000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Rows Removed by Filter: 10000000
+                                 Buffers: shared hit=448 read=124552
+                           ->  Parallel Seq Scan on drawer_notification_org_2 drawer_notification_org_3  (cost=0.00..234375.00 rows=2064583 width=6) (actual time=1510.865..2581.255 rows=5000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Rows Removed by Filter: 10000000
+                                 Buffers: shared hit=448 read=124552
+                           ->  Parallel Seq Scan on drawer_notification_org_3 drawer_notification_org_4  (cost=0.00..234375.00 rows=2114792 width=6) (actual time=0.055..3010.065 rows=5000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Rows Removed by Filter: 10000000
+                                 Buffers: shared hit=448 read=124552
+                           ->  Parallel Seq Scan on drawer_notification_org_4 drawer_notification_org_5  (cost=0.00..234375.00 rows=2062500 width=6) (actual time=1898.808..3144.285 rows=5000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Rows Removed by Filter: 10000000
+                                 Buffers: shared hit=448 read=124552
+                           ->  Parallel Seq Scan on drawer_notification_org_5 drawer_notification_org_6  (cost=0.00..234375.00 rows=2091667 width=6) (actual time=0.063..3010.951 rows=5000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Rows Removed by Filter: 10000000
+                                 Buffers: shared hit=2092 read=122908
+                           ->  Parallel Seq Scan on drawer_notification_org_6 drawer_notification_org_7  (cost=0.00..234375.00 rows=2093542 width=6) (actual time=481.523..1325.775 rows=1666667 loops=3)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Rows Removed by Filter: 3333333
+                                 Buffers: shared hit=448 read=124552
+                           ->  Parallel Seq Scan on drawer_notification_org_7 drawer_notification_org_8  (cost=0.00..234375.00 rows=2072917 width=6) (actual time=0.052..3593.272 rows=5000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Rows Removed by Filter: 10000000
+                                 Buffers: shared hit=448 read=124552
+                           ->  Parallel Seq Scan on drawer_notification_org_8 drawer_notification_org_9  (cost=0.00..234375.00 rows=2048750 width=6) (actual time=0.051..2291.556 rows=5000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Rows Removed by Filter: 10000000
+                                 Buffers: shared hit=448 read=124552
+                           ->  Parallel Seq Scan on drawer_notification_org_9 drawer_notification_org_10  (cost=0.00..234375.00 rows=2108958 width=6) (actual time=304.291..2130.764 rows=5000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Rows Removed by Filter: 10000000
+                                 Buffers: shared hit=448 read=124552
+ Planning:
+   Buffers: shared hit=129
+ Planning Time: 0.412 ms
+ JIT:
+   Functions: 135
+   Options: Inlining true, Optimization true, Expressions true, Deforming true
+   Timing: Generation 3.928 ms (Deform 1.876 ms), Inlining 246.377 ms, Optimization 398.609 ms, Emission 274.870 ms, Total 923.784 ms
+ Execution Time: 13427.214 ms
+(69 rows)
+
+=== Additional query patterns: Done
+
+ drop_all_test_indexes_org 
+---------------------------
+ 
+(1 row)
+
+DROP FUNCTION

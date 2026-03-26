@@ -1,0 +1,1371 @@
+CREATE FUNCTION
+ drop_all_test_indexes_day 
+---------------------------
+ 
+(1 row)
+
+VACUUM
+=== Scenario 1: Baseline - drawer_notification (partitioned by day) ===
+Query: Count notifications for org and user
+                                                                                           QUERY PLAN                                                                                            
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=2189200.97..2189200.98 rows=1 width=8) (actual time=5642.014..5653.115 rows=1 loops=1)
+   Buffers: shared hit=6102 read=1244118
+   ->  Gather  (cost=2189200.76..2189200.97 rows=2 width=8) (actual time=5641.709..5653.099 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=6102 read=1244118
+         ->  Partial Aggregate  (cost=2188200.76..2188200.77 rows=1 width=8) (actual time=5624.735..5624.739 rows=1 loops=3)
+               Buffers: shared hit=6102 read=1244118
+               ->  Parallel Append  (cost=0.00..2188041.98 rows=63512 width=0) (actual time=823.825..5602.585 rows=50000 loops=3)
+                     Buffers: shared hit=6102 read=1244118
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_25 drawer_notification_15  (cost=0.00..145849.31 rows=4548 width=0) (actual time=841.836..1093.023 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=1090 read=82258
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_12 drawer_notification_2  (cost=0.00..145849.21 rows=3865 width=0) (actual time=905.221..1503.740 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared read=83348
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_23 drawer_notification_13  (cost=0.00..145849.14 rows=4708 width=0) (actual time=623.296..922.941 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=834 read=82514
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_14 drawer_notification_4  (cost=0.00..145848.96 rows=4423 width=0) (actual time=541.903..1149.038 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=1 read=83347
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_21 drawer_notification_11  (cost=0.00..145848.65 rows=4183 width=0) (actual time=630.955..949.829 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=834 read=82514
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_16 drawer_notification_6  (cost=0.00..145848.62 rows=4048 width=0) (actual time=528.253..1103.846 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared read=83348
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_22 drawer_notification_12  (cost=0.00..145848.54 rows=4606 width=0) (actual time=488.651..1090.069 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=834 read=82514
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_13 drawer_notification_3  (cost=0.00..145848.48 rows=3905 width=0) (actual time=541.279..1126.127 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=1 read=83347
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_20 drawer_notification_10  (cost=0.00..145848.34 rows=3481 width=0) (actual time=550.456..1127.152 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=834 read=82514
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_17 drawer_notification_7  (cost=0.00..145848.31 rows=4481 width=0) (actual time=205.159..413.643 rows=3333 loops=3)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 3330000
+                           Buffers: shared read=83348
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_19 drawer_notification_9  (cost=0.00..145847.99 rows=4056 width=0) (actual time=358.259..576.727 rows=5000 loops=2)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 4995000
+                           Buffers: shared hit=586 read=82762
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_18 drawer_notification_8  (cost=0.00..145847.75 rows=4246 width=0) (actual time=507.738..1078.916 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=252 read=83096
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_15 drawer_notification_5  (cost=0.00..145847.44 rows=4403 width=0) (actual time=573.925..1114.884 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=1 read=83347
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_11 drawer_notification_1  (cost=0.00..145846.98 rows=4232 width=0) (actual time=508.238..1100.770 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=1 read=83347
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_24 drawer_notification_14  (cost=0.00..145846.71 rows=4327 width=0) (actual time=724.413..1046.193 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=834 read=82514
+ Planning:
+   Buffers: shared hit=356 read=3
+ Planning Time: 1.404 ms
+ JIT:
+   Functions: 143
+   Options: Inlining true, Optimization true, Expressions true, Deforming true
+   Timing: Generation 3.635 ms (Deform 0.951 ms), Inlining 233.706 ms, Optimization 322.341 ms, Emission 291.006 ms, Total 850.688 ms
+ Execution Time: 5675.697 ms
+(78 rows)
+
+Query: Select notifications for org and user (with LIMIT)
+                                                                                            QUERY PLAN                                                                                             
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=2190732.03..2190734.37 rows=20 width=38) (actual time=8274.351..8287.980 rows=20 loops=1)
+   Buffers: shared hit=6750 read=1243542
+   ->  Gather Merge  (cost=2190732.03..2205552.54 rows=127024 width=38) (actual time=8181.598..8195.218 rows=20 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=6750 read=1243542
+         ->  Sort  (cost=2189732.01..2189890.79 rows=63512 width=38) (actual time=8157.584..8157.594 rows=14 loops=3)
+               Sort Key: drawer_notification.created DESC
+               Sort Method: top-N heapsort  Memory: 26kB
+               Buffers: shared hit=6750 read=1243542
+               Worker 0:  Sort Method: top-N heapsort  Memory: 26kB
+               Worker 1:  Sort Method: top-N heapsort  Memory: 26kB
+               ->  Parallel Append  (cost=0.00..2188041.98 rows=63512 width=38) (actual time=722.208..8152.654 rows=50000 loops=3)
+                     Buffers: shared hit=6678 read=1243542
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_25 drawer_notification_15  (cost=0.00..145849.31 rows=4548 width=38) (actual time=852.422..1133.268 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=1122 read=82226
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_12 drawer_notification_2  (cost=0.00..145849.21 rows=3865 width=38) (actual time=853.791..1556.979 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=32 read=83316
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_23 drawer_notification_13  (cost=0.00..145849.14 rows=4708 width=38) (actual time=929.996..1500.327 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=866 read=82482
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_14 drawer_notification_4  (cost=0.00..145848.96 rows=4423 width=38) (actual time=786.424..1600.681 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=33 read=83315
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_21 drawer_notification_11  (cost=0.00..145848.65 rows=4183 width=38) (actual time=1149.319..1734.261 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=866 read=82482
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_16 drawer_notification_6  (cost=0.00..145848.62 rows=4048 width=38) (actual time=991.000..1998.832 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=32 read=83316
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_22 drawer_notification_12  (cost=0.00..145848.54 rows=4606 width=38) (actual time=889.878..1765.841 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=866 read=82482
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_13 drawer_notification_3  (cost=0.00..145848.48 rows=3905 width=38) (actual time=991.424..2011.456 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=33 read=83315
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_20 drawer_notification_10  (cost=0.00..145848.34 rows=3481 width=38) (actual time=934.255..1908.178 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=866 read=82482
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_17 drawer_notification_7  (cost=0.00..145848.31 rows=4481 width=38) (actual time=326.654..607.671 rows=3333 loops=3)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 3330000
+                           Buffers: shared hit=96 read=83252
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_19 drawer_notification_9  (cost=0.00..145847.99 rows=4056 width=38) (actual time=809.627..1645.308 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=650 read=82698
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_18 drawer_notification_8  (cost=0.00..145847.75 rows=4246 width=38) (actual time=809.367..1602.389 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=284 read=83064
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_15 drawer_notification_5  (cost=0.00..145847.44 rows=4403 width=38) (actual time=918.848..1805.918 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=33 read=83315
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_11 drawer_notification_1  (cost=0.00..145846.98 rows=4232 width=38) (actual time=672.943..1573.979 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=33 read=83315
+                     ->  Parallel Seq Scan on drawer_notification_2026_03_24 drawer_notification_14  (cost=0.00..145846.71 rows=4327 width=38) (actual time=460.405..786.559 rows=10000 loops=1)
+                           Filter: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Rows Removed by Filter: 9990000
+                           Buffers: shared hit=866 read=82482
+ Planning:
+   Buffers: shared hit=147
+ Planning Time: 0.508 ms
+ JIT:
+   Functions: 91
+   Options: Inlining true, Optimization true, Expressions true, Deforming true
+   Timing: Generation 3.509 ms (Deform 1.158 ms), Inlining 143.559 ms, Optimization 264.423 ms, Emission 206.223 ms, Total 617.714 ms
+ Execution Time: 8289.491 ms
+(82 rows)
+
+=== Scenario 1: Done
+
+ drop_all_test_indexes_day 
+---------------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 2: B-tree on org_id ===
+Query: Count notifications for org and user
+Query: Select notifications for org and user (with LIMIT)
+=== Scenario 2: Done
+
+ drop_all_test_indexes_day 
+---------------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 3: B-tree on user_id ===
+Query: Count notifications for org and user
+                                                                                                         QUERY PLAN                                                                                                         
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=1378955.39..1378955.40 rows=1 width=8) (actual time=811.577..811.599 rows=1 loops=1)
+   Buffers: shared read=13815
+   ->  Append  (cost=1144.06..1378573.57 rows=152729 width=0) (actual time=245.566..800.978 rows=150000 loops=1)
+         Buffers: shared read=13815
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_11 drawer_notification_1  (cost=1144.06..90483.93 rows=10515 width=0) (actual time=245.561..299.500 rows=10000 loops=1)
+               Recheck Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Heap Blocks: exact=834
+               Buffers: shared read=921
+               ->  Bitmap Index Scan on drawer_notification_2026_03_11_user_id_idx  (cost=0.00..1141.43 rows=104666 width=0) (actual time=7.494..7.494 rows=100000 loops=1)
+                     Index Cond: ((user_id)::text = 'user-50'::text)
+                     Buffers: shared read=87
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_12 drawer_notification_2  (cost=1146.62..90497.26 rows=10738 width=0) (actual time=11.063..53.197 rows=10000 loops=1)
+               Recheck Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Heap Blocks: exact=834
+               Buffers: shared read=921
+               ->  Bitmap Index Scan on drawer_notification_2026_03_12_user_id_idx  (cost=0.00..1143.93 rows=105000 width=0) (actual time=9.841..9.841 rows=100000 loops=1)
+                     Index Cond: ((user_id)::text = 'user-50'::text)
+                     Buffers: shared read=87
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_13 drawer_notification_3  (cost=1076.40..90112.26 rows=9827 width=0) (actual time=7.769..67.703 rows=10000 loops=1)
+               Recheck Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Heap Blocks: exact=834
+               Buffers: shared read=921
+               ->  Bitmap Index Scan on drawer_notification_2026_03_13_user_id_idx  (cost=0.00..1073.95 rows=98335 width=0) (actual time=7.157..7.158 rows=100000 loops=1)
+                     Index Cond: ((user_id)::text = 'user-50'::text)
+                     Buffers: shared read=87
+         ->  Index Scan using drawer_notification_2026_03_14_user_id_idx on drawer_notification_2026_03_14 drawer_notification_4  (cost=0.43..82598.95 rows=8190 width=0) (actual time=1.722..46.355 rows=10000 loops=1)
+               Index Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Buffers: shared read=921
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_15 drawer_notification_5  (cost=999.73..89451.03 rows=9212 width=0) (actual time=10.755..51.371 rows=10000 loops=1)
+               Recheck Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Heap Blocks: exact=834
+               Buffers: shared read=921
+               ->  Bitmap Index Scan on drawer_notification_2026_03_15_user_id_idx  (cost=0.00..997.42 rows=91332 width=0) (actual time=9.883..9.883 rows=100000 loops=1)
+                     Index Cond: ((user_id)::text = 'user-50'::text)
+                     Buffers: shared read=87
+         ->  Index Scan using drawer_notification_2026_03_16_user_id_idx on drawer_notification_2026_03_16 drawer_notification_6  (cost=0.43..105496.68 rows=11424 width=0) (actual time=3.023..50.454 rows=10000 loops=1)
+               Index Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Buffers: shared read=921
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_17 drawer_notification_7  (cost=1039.31..89832.03 rows=9462 width=0) (actual time=3.897..40.988 rows=10000 loops=1)
+               Recheck Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Heap Blocks: exact=834
+               Buffers: shared read=921
+               ->  Bitmap Index Scan on drawer_notification_2026_03_17_user_id_idx  (cost=0.00..1036.94 rows=95001 width=0) (actual time=3.741..3.741 rows=100000 loops=1)
+                     Index Cond: ((user_id)::text = 'user-50'::text)
+                     Buffers: shared read=87
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_18 drawer_notification_8  (cost=1127.55..90406.18 rows=10461 width=0) (actual time=7.916..32.348 rows=10000 loops=1)
+               Recheck Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Heap Blocks: exact=834
+               Buffers: shared read=921
+               ->  Bitmap Index Scan on drawer_notification_2026_03_18_user_id_idx  (cost=0.00..1124.93 rows=103000 width=0) (actual time=7.384..7.385 rows=100000 loops=1)
+                     Index Cond: ((user_id)::text = 'user-50'::text)
+                     Buffers: shared read=87
+         ->  Index Scan using drawer_notification_2026_03_19_user_id_idx on drawer_notification_2026_03_19 drawer_notification_9  (cost=0.43..90759.77 rows=9752 width=0) (actual time=1.626..22.346 rows=10000 loops=1)
+               Index Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Buffers: shared read=921
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_20 drawer_notification_10  (cost=1139.02..90455.91 rows=10389 width=0) (actual time=5.151..21.816 rows=10000 loops=1)
+               Recheck Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Heap Blocks: exact=834
+               Buffers: shared read=921
+               ->  Bitmap Index Scan on drawer_notification_2026_03_20_user_id_idx  (cost=0.00..1136.43 rows=103999 width=0) (actual time=4.799..4.799 rows=100000 loops=1)
+                     Index Cond: ((user_id)::text = 'user-50'::text)
+                     Buffers: shared read=87
+         ->  Index Scan using drawer_notification_2026_03_21_user_id_idx on drawer_notification_2026_03_21 drawer_notification_11  (cost=0.43..107977.64 rows=12071 width=0) (actual time=0.911..21.906 rows=10000 loops=1)
+               Index Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Buffers: shared read=921
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_22 drawer_notification_12  (cost=1116.02..90351.69 rows=10309 width=0) (actual time=4.124..25.473 rows=10000 loops=1)
+               Recheck Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Heap Blocks: exact=834
+               Buffers: shared read=921
+               ->  Bitmap Index Scan on drawer_notification_2026_03_22_user_id_idx  (cost=0.00..1113.44 rows=102001 width=0) (actual time=3.985..3.985 rows=100000 loops=1)
+                     Index Cond: ((user_id)::text = 'user-50'::text)
+                     Buffers: shared read=87
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_23 drawer_notification_13  (cost=1141.59..90470.31 rows=10590 width=0) (actual time=2.749..31.093 rows=10000 loops=1)
+               Recheck Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Heap Blocks: exact=834
+               Buffers: shared read=921
+               ->  Bitmap Index Scan on drawer_notification_2026_03_23_user_id_idx  (cost=0.00..1138.95 rows=104335 width=0) (actual time=2.584..2.584 rows=100000 loops=1)
+                     Index Cond: ((user_id)::text = 'user-50'::text)
+                     Buffers: shared read=87
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_24 drawer_notification_14  (cost=1106.99..90311.36 rows=10177 width=0) (actual time=2.230..10.307 rows=10000 loops=1)
+               Recheck Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Heap Blocks: exact=834
+               Buffers: shared read=921
+               ->  Bitmap Index Scan on drawer_notification_2026_03_24_user_id_idx  (cost=0.00..1104.45 rows=101335 width=0) (actual time=2.105..2.105 rows=100000 loops=1)
+                     Index Cond: ((user_id)::text = 'user-50'::text)
+                     Buffers: shared read=87
+         ->  Index Scan using drawer_notification_2026_03_25_user_id_idx on drawer_notification_2026_03_25 drawer_notification_15  (cost=0.43..88604.94 rows=9612 width=0) (actual time=0.117..10.785 rows=10000 loops=1)
+               Index Cond: ((user_id)::text = 'user-50'::text)
+               Filter: ((org_id)::text = 'org-5'::text)
+               Rows Removed by Filter: 90000
+               Buffers: shared read=921
+ Planning:
+   Buffers: shared hit=484
+ Planning Time: 1.474 ms
+ JIT:
+   Functions: 77
+   Options: Inlining true, Optimization true, Expressions true, Deforming true
+   Timing: Generation 2.303 ms (Deform 0.838 ms), Inlining 10.560 ms, Optimization 130.676 ms, Emission 96.833 ms, Total 240.372 ms
+ Execution Time: 814.166 ms
+(127 rows)
+
+Query: Select notifications for org and user (with LIMIT)
+                                                                                                                   QUERY PLAN                                                                                                                   
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=1368247.62..1368249.96 rows=20 width=38) (actual time=506.154..513.463 rows=20 loops=1)
+   Buffers: shared hit=13827 read=4
+   ->  Gather Merge  (cost=1368247.62..1383097.06 rows=127272 width=38) (actual time=316.427..323.733 rows=20 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=13827 read=4
+         ->  Sort  (cost=1367247.60..1367406.69 rows=63636 width=38) (actual time=244.067..244.081 rows=12 loops=3)
+               Sort Key: drawer_notification.created DESC
+               Sort Method: top-N heapsort  Memory: 26kB
+               Buffers: shared hit=13827 read=4
+               Worker 0:  Sort Method: quicksort  Memory: 25kB
+               Worker 1:  Sort Method: quicksort  Memory: 25kB
+               ->  Parallel Append  (cost=1144.06..1365554.27 rows=63636 width=38) (actual time=187.924..238.946 rows=50000 loops=3)
+                     Buffers: shared hit=13817
+                     ->  Parallel Bitmap Heap Scan on drawer_notification_2026_03_12 drawer_notification_2  (cost=1146.62..89578.51 rows=4474 width=38) (actual time=138.176..141.618 rows=5000 loops=2)
+                           Recheck Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 45000
+                           Heap Blocks: exact=833
+                           Buffers: shared hit=922
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_12_user_id_idx  (cost=0.00..1143.93 rows=105000 width=0) (actual time=2.157..2.157 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared hit=88
+                     ->  Parallel Bitmap Heap Scan on drawer_notification_2026_03_11 drawer_notification_1  (cost=1144.06..89568.10 rows=4381 width=38) (actual time=143.746..149.296 rows=5000 loops=2)
+                           Recheck Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 45000
+                           Heap Blocks: exact=833
+                           Buffers: shared hit=922
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_11_user_id_idx  (cost=0.00..1141.43 rows=104666 width=0) (actual time=5.214..5.214 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared hit=88
+                     ->  Parallel Bitmap Heap Scan on drawer_notification_2026_03_23 drawer_notification_13  (cost=1141.59..89557.38 rows=4412 width=38) (actual time=1.182..35.367 rows=10000 loops=1)
+                           Recheck Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Heap Blocks: exact=834
+                           Buffers: shared hit=921
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_23_user_id_idx  (cost=0.00..1138.95 rows=104335 width=0) (actual time=1.095..1.095 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared hit=87
+                     ->  Parallel Bitmap Heap Scan on drawer_notification_2026_03_20 drawer_notification_10  (cost=1139.02..89545.92 rows=4329 width=38) (actual time=1.246..5.524 rows=10000 loops=1)
+                           Recheck Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Heap Blocks: exact=834
+                           Buffers: shared hit=921
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_20_user_id_idx  (cost=0.00..1136.43 rows=103999 width=0) (actual time=1.150..1.150 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared hit=87
+                     ->  Parallel Bitmap Heap Scan on drawer_notification_2026_03_18 drawer_notification_8  (cost=1127.55..89504.93 rows=4359 width=38) (actual time=1.117..5.289 rows=10000 loops=1)
+                           Recheck Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Heap Blocks: exact=834
+                           Buffers: shared hit=921
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_18_user_id_idx  (cost=0.00..1124.93 rows=103000 width=0) (actual time=1.036..1.036 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared hit=87
+                     ->  Parallel Bitmap Heap Scan on drawer_notification_2026_03_22 drawer_notification_12  (cost=1116.02..89459.18 rows=4295 width=38) (actual time=1.696..6.320 rows=10000 loops=1)
+                           Recheck Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Heap Blocks: exact=834
+                           Buffers: shared hit=921
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_22_user_id_idx  (cost=0.00..1113.44 rows=102001 width=0) (actual time=1.581..1.581 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared hit=87
+                     ->  Parallel Bitmap Heap Scan on drawer_notification_2026_03_24 drawer_notification_14  (cost=1106.99..89424.68 rows=4240 width=38) (actual time=1.648..13.469 rows=10000 loops=1)
+                           Recheck Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Heap Blocks: exact=834
+                           Buffers: shared hit=921
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_24_user_id_idx  (cost=0.00..1104.45 rows=101335 width=0) (actual time=1.565..1.566 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared hit=87
+                     ->  Parallel Bitmap Heap Scan on drawer_notification_2026_03_13 drawer_notification_3  (cost=1076.40..89251.83 rows=4095 width=38) (actual time=1.673..7.041 rows=10000 loops=1)
+                           Recheck Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Heap Blocks: exact=834
+                           Buffers: shared hit=921
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_13_user_id_idx  (cost=0.00..1073.95 rows=98335 width=0) (actual time=1.585..1.585 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared hit=87
+                     ->  Parallel Bitmap Heap Scan on drawer_notification_2026_03_19 drawer_notification_9  (cost=1053.39..89107.87 rows=4063 width=38) (actual time=1.901..7.677 rows=10000 loops=1)
+                           Recheck Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Heap Blocks: exact=834
+                           Buffers: shared hit=921
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_19_user_id_idx  (cost=0.00..1050.95 rows=96335 width=0) (actual time=1.792..1.792 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared hit=87
+                     ->  Parallel Bitmap Heap Scan on drawer_notification_2026_03_17 drawer_notification_7  (cost=1039.31..89000.77 rows=3942 width=38) (actual time=1.762..7.580 rows=10000 loops=1)
+                           Recheck Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Heap Blocks: exact=834
+                           Buffers: shared hit=921
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_17_user_id_idx  (cost=0.00..1036.94 rows=95001 width=0) (actual time=1.648..1.649 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared hit=87
+                     ->  Parallel Bitmap Heap Scan on drawer_notification_2026_03_15 drawer_notification_5  (cost=999.73..88651.87 rows=3838 width=38) (actual time=1.901..7.727 rows=10000 loops=1)
+                           Recheck Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Heap Blocks: exact=834
+                           Buffers: shared hit=921
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_15_user_id_idx  (cost=0.00..997.42 rows=91332 width=0) (actual time=1.780..1.780 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared hit=87
+                     ->  Parallel Index Scan using drawer_notification_2026_03_21_user_id_idx on drawer_notification_2026_03_21 drawer_notification_11  (cost=0.43..107365.13 rows=7101 width=38) (actual time=0.041..7.678 rows=10000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Buffers: shared hit=921
+                     ->  Parallel Index Scan using drawer_notification_2026_03_16_user_id_idx on drawer_notification_2026_03_16 drawer_notification_6  (cost=0.43..104932.22 rows=6720 width=38) (actual time=0.047..7.902 rows=10000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Buffers: shared hit=921
+                     ->  Parallel Index Scan using drawer_notification_2026_03_25_user_id_idx on drawer_notification_2026_03_25 drawer_notification_15  (cost=0.43..88107.39 rows=5654 width=38) (actual time=0.048..8.060 rows=10000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Buffers: shared hit=921
+                     ->  Parallel Index Scan using drawer_notification_2026_03_14_user_id_idx on drawer_notification_2026_03_14 drawer_notification_4  (cost=0.43..82180.32 rows=4818 width=38) (actual time=0.057..8.016 rows=10000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Filter: ((org_id)::text = 'org-5'::text)
+                           Rows Removed by Filter: 90000
+                           Buffers: shared hit=921
+ Planning:
+   Buffers: shared hit=151 dirtied=2
+ Planning Time: 0.635 ms
+ JIT:
+   Functions: 181
+   Options: Inlining true, Optimization true, Expressions true, Deforming true
+   Timing: Generation 5.466 ms (Deform 2.209 ms), Inlining 128.419 ms, Optimization 382.512 ms, Emission 234.916 ms, Total 751.312 ms
+ Execution Time: 515.750 ms
+(141 rows)
+
+=== Scenario 3: Done
+
+ drop_all_test_indexes_day 
+---------------------------
+ 
+(1 row)
+
+CREATE INDEX
+CREATE INDEX
+VACUUM
+=== Scenario 4: Two separate B-tree indexes (org_id + user_id) ===
+Query: Count notifications for org and user
+                                                                                      QUERY PLAN                                                                                      
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=605376.39..605376.40 rows=1 width=8) (actual time=1355.828..1355.873 rows=1 loops=1)
+   Buffers: shared hit=1753 read=18647
+   ->  Append  (cost=11642.62..605001.53 rows=149947 width=0) (actual time=188.298..1346.072 rows=150000 loops=1)
+         Buffers: shared hit=1753 read=18647
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_11 drawer_notification_1  (cost=11642.62..40071.90 rows=10029 width=0) (actual time=188.295..231.639 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=156 read=1204
+               ->  BitmapAnd  (cost=11642.62..11642.62 rows=10029 width=0) (actual time=109.187..109.188 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_11_user_id_idx  (cost=0.00..1136.43 rows=104000 width=0) (actual time=9.850..9.850 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_11_org_id_idx  (cost=0.00..10500.92 rows=964331 width=0) (actual time=99.289..99.289 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_12 drawer_notification_2  (cost=11819.17..38570.07 rows=9285 width=0) (actual time=52.848..82.591 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=154 read=1206
+               ->  BitmapAnd  (cost=11819.17..11819.17 rows=9285 width=0) (actual time=52.653..52.655 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_12_user_id_idx  (cost=0.00..1022.93 rows=93666 width=0) (actual time=8.891..8.891 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_12_org_id_idx  (cost=0.00..10791.35 rows=991322 width=0) (actual time=43.705..43.705 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_13 drawer_notification_3  (cost=12133.27..40879.49 rows=10171 width=0) (actual time=46.567..81.627 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=164 read=1196
+               ->  BitmapAnd  (cost=12133.27..12133.27 rows=10171 width=0) (actual time=46.368..46.369 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_13_user_id_idx  (cost=0.00..1092.94 rows=100334 width=0) (actual time=6.110..6.111 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_13_org_id_idx  (cost=0.00..11034.99 rows=1013674 width=0) (actual time=40.186..40.186 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_14 drawer_notification_4  (cost=12403.32..45573.89 rows=12254 width=0) (actual time=57.885..89.447 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=178 read=1182
+               ->  BitmapAnd  (cost=12403.32..12403.32 rows=12254 width=0) (actual time=57.520..57.522 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_14_user_id_idx  (cost=0.00..1310.94 rows=120334 width=0) (actual time=5.735..5.735 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_14_org_id_idx  (cost=0.00..11086.00 rows=1018342 width=0) (actual time=51.663..51.663 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_15 drawer_notification_5  (cost=11697.76..36175.63 rows=8313 width=0) (actual time=45.395..73.440 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=166 read=1194
+               ->  BitmapAnd  (cost=11697.76..11697.76 rows=8313 width=0) (actual time=45.250..45.252 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_15_user_id_idx  (cost=0.00..918.43 rows=84000 width=0) (actual time=6.277..6.277 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_15_org_id_idx  (cost=0.00..10774.92 rows=989665 width=0) (actual time=38.931..38.932 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_16 drawer_notification_6  (cost=11735.65..39979.64 rows=9945 width=0) (actual time=55.436..84.434 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=173 read=1187
+               ->  BitmapAnd  (cost=11735.65..11735.65 rows=9945 width=0) (actual time=55.238..55.239 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_16_user_id_idx  (cost=0.00..1113.44 rows=102001 width=0) (actual time=6.275..6.276 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_16_org_id_idx  (cost=0.00..10616.99 rows=975007 width=0) (actual time=48.860..48.860 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_17 drawer_notification_7  (cost=11751.91..38841.87 rows=9434 width=0) (actual time=47.351..72.645 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=158 read=1202
+               ->  BitmapAnd  (cost=11751.91..11751.91 rows=9434 width=0) (actual time=47.187..47.188 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_17_user_id_idx  (cost=0.00..1048.44 rows=96001 width=0) (actual time=5.165..5.165 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_17_org_id_idx  (cost=0.00..10698.50 rows=982675 width=0) (actual time=41.965..41.965 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_18 drawer_notification_8  (cost=12241.58..40096.06 rows=9772 width=0) (actual time=57.185..84.474 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=173 read=1187
+               ->  BitmapAnd  (cost=12241.58..12241.58 rows=9772 width=0) (actual time=57.030..57.031 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_18_user_id_idx  (cost=0.00..1036.94 rows=95001 width=0) (actual time=6.264..6.264 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_18_org_id_idx  (cost=0.00..11199.50 rows=1028675 width=0) (actual time=50.685..50.685 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_19 drawer_notification_9  (cost=11749.45..39498.06 rows=9725 width=0) (actual time=59.292..80.579 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=170 read=1190
+               ->  BitmapAnd  (cost=11749.45..11749.45 rows=9725 width=0) (actual time=59.145..59.147 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_19_user_id_idx  (cost=0.00..1085.43 rows=99333 width=0) (actual time=7.133..7.133 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_19_org_id_idx  (cost=0.00..10658.90 rows=978996 width=0) (actual time=51.925..51.925 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_20 drawer_notification_10  (cost=12181.92..42410.88 rows=10851 width=0) (actual time=43.851..66.729 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=172 read=1188
+               ->  BitmapAnd  (cost=12181.92..12181.92 rows=10851 width=0) (actual time=43.692..43.698 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_20_user_id_idx  (cost=0.00..1169.42 rows=107332 width=0) (actual time=2.417..2.420 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_20_org_id_idx  (cost=0.00..11006.82 rows=1010984 width=0) (actual time=41.220..41.220 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_21 drawer_notification_11  (cost=12046.59..39309.35 rows=9510 width=0) (actual time=55.115..96.444 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=81 read=1279
+               ->  BitmapAnd  (cost=12046.59..12046.59 rows=9510 width=0) (actual time=54.790..54.792 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_21_user_id_idx  (cost=0.00..1025.45 rows=94002 width=0) (actual time=2.224..2.224 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_21_org_id_idx  (cost=0.00..11016.13 rows=1011693 width=0) (actual time=52.457..52.457 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_22 drawer_notification_12  (cost=12091.35..41869.36 rows=10642 width=0) (actual time=53.644..100.698 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=2 read=1358
+               ->  BitmapAnd  (cost=12091.35..12091.35 rows=10642 width=0) (actual time=53.465..53.466 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_22_user_id_idx  (cost=0.00..1155.43 rows=105999 width=0) (actual time=4.886..4.887 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_22_org_id_idx  (cost=0.00..10930.35 rows=1003989 width=0) (actual time=48.503..48.503 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_23 drawer_notification_13  (cost=12072.33..40549.11 rows=10050 width=0) (actual time=48.411..82.003 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=2 read=1358
+               ->  BitmapAnd  (cost=12072.33..12072.33 rows=10050 width=0) (actual time=48.229..48.231 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_23_user_id_idx  (cost=0.00..1087.95 rows=99669 width=0) (actual time=3.663..3.663 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_23_org_id_idx  (cost=0.00..10979.10 rows=1008356 width=0) (actual time=44.492..44.493 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_24 drawer_notification_14  (cost=11765.93..38886.42 rows=9447 width=0) (actual time=44.728..52.399 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=2 read=1358
+               ->  BitmapAnd  (cost=11765.93..11765.93 rows=9447 width=0) (actual time=44.548..44.550 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_24_user_id_idx  (cost=0.00..1048.44 rows=96001 width=0) (actual time=2.594..2.594 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_24_org_id_idx  (cost=0.00..10712.52 rows=984011 width=0) (actual time=41.890..41.891 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+         ->  Bitmap Heap Scan on drawer_notification_2026_03_25 drawer_notification_15  (cost=12030.45..41540.08 rows=10519 width=0) (actual time=47.324..52.035 rows=10000 loops=1)
+               Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+               Rows Removed by Index Recheck: 46008
+               Heap Blocks: exact=834
+               Buffers: shared hit=2 read=1358
+               ->  BitmapAnd  (cost=12030.45..12030.45 rows=10519 width=0) (actual time=47.155..47.156 rows=0 loops=1)
+                     Buffers: shared read=932
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_25_user_id_idx  (cost=0.00..1150.44 rows=105334 width=0) (actual time=2.957..2.957 rows=100000 loops=1)
+                           Index Cond: ((user_id)::text = 'user-50'::text)
+                           Buffers: shared read=87
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_25_org_id_idx  (cost=0.00..10874.50 rows=998675 width=0) (actual time=44.146..44.147 rows=1000000 loops=1)
+                           Index Cond: ((org_id)::text = 'org-5'::text)
+                           Buffers: shared read=845
+ Planning:
+   Buffers: shared hit=609
+ Planning Time: 3.647 ms
+ JIT:
+   Functions: 47
+   Options: Inlining true, Optimization true, Expressions true, Deforming true
+   Timing: Generation 2.915 ms (Deform 0.888 ms), Inlining 5.603 ms, Optimization 39.307 ms, Emission 34.674 ms, Total 82.498 ms
+ Execution Time: 1359.217 ms
+(207 rows)
+
+Query: Select notifications for org and user (with LIMIT)
+                                                                                         QUERY PLAN                                                                                         
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=608991.56..608991.61 rows=20 width=38) (actual time=979.065..979.099 rows=20 loops=1)
+   Buffers: shared hit=6 read=26484
+   ->  Sort  (cost=608991.56..609366.43 rows=149947 width=38) (actual time=873.445..873.477 rows=20 loops=1)
+         Sort Key: drawer_notification.created DESC
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=6 read=26484
+         ->  Append  (cost=11642.62..605001.53 rows=149947 width=38) (actual time=23.351..855.181 rows=150000 loops=1)
+               Buffers: shared hit=6 read=26484
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_11 drawer_notification_1  (cost=11642.62..40071.90 rows=10029 width=38) (actual time=23.348..45.251 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=1 read=1765
+                     ->  BitmapAnd  (cost=11642.62..11642.62 rows=10029 width=0) (actual time=19.735..19.737 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_11_user_id_idx  (cost=0.00..1136.43 rows=104000 width=0) (actual time=1.187..1.187 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_11_org_id_idx  (cost=0.00..10500.92 rows=964331 width=0) (actual time=18.508..18.508 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_12 drawer_notification_2  (cost=11819.17..38570.07 rows=9285 width=38) (actual time=36.325..55.016 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=1 read=1765
+                     ->  BitmapAnd  (cost=11819.17..11819.17 rows=9285 width=0) (actual time=35.379..35.380 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_12_user_id_idx  (cost=0.00..1022.93 rows=93666 width=0) (actual time=3.503..3.504 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_12_org_id_idx  (cost=0.00..10791.35 rows=991322 width=0) (actual time=31.802..31.803 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_13 drawer_notification_3  (cost=12133.27..40879.49 rows=10171 width=38) (actual time=37.854..67.307 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=1 read=1765
+                     ->  BitmapAnd  (cost=12133.27..12133.27 rows=10171 width=0) (actual time=36.842..36.843 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_13_user_id_idx  (cost=0.00..1092.94 rows=100334 width=0) (actual time=1.848..1.848 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_13_org_id_idx  (cost=0.00..11034.99 rows=1013674 width=0) (actual time=34.941..34.942 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_14 drawer_notification_4  (cost=12403.32..45573.89 rows=12254 width=38) (actual time=49.779..81.109 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=1 read=1765
+                     ->  BitmapAnd  (cost=12403.32..12403.32 rows=12254 width=0) (actual time=49.653..49.655 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_14_user_id_idx  (cost=0.00..1310.94 rows=120334 width=0) (actual time=4.243..4.244 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_14_org_id_idx  (cost=0.00..11086.00 rows=1018342 width=0) (actual time=45.348..45.348 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_15 drawer_notification_5  (cost=11697.76..36175.63 rows=8313 width=38) (actual time=25.947..52.423 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=1 read=1765
+                     ->  BitmapAnd  (cost=11697.76..11697.76 rows=8313 width=0) (actual time=25.114..25.115 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_15_user_id_idx  (cost=0.00..918.43 rows=84000 width=0) (actual time=2.796..2.796 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_15_org_id_idx  (cost=0.00..10774.92 rows=989665 width=0) (actual time=22.273..22.273 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_16 drawer_notification_6  (cost=11735.65..39979.64 rows=9945 width=38) (actual time=26.838..58.372 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=1 read=1765
+                     ->  BitmapAnd  (cost=11735.65..11735.65 rows=9945 width=0) (actual time=26.764..26.765 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_16_user_id_idx  (cost=0.00..1113.44 rows=102001 width=0) (actual time=2.700..2.700 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_16_org_id_idx  (cost=0.00..10616.99 rows=975007 width=0) (actual time=24.021..24.021 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_17 drawer_notification_7  (cost=11751.91..38841.87 rows=9434 width=38) (actual time=29.324..54.072 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared read=1766
+                     ->  BitmapAnd  (cost=11751.91..11751.91 rows=9434 width=0) (actual time=29.253..29.254 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_17_user_id_idx  (cost=0.00..1048.44 rows=96001 width=0) (actual time=3.896..3.897 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_17_org_id_idx  (cost=0.00..10698.50 rows=982675 width=0) (actual time=25.321..25.321 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_18 drawer_notification_8  (cost=12241.58..40096.06 rows=9772 width=38) (actual time=33.925..54.618 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared read=1766
+                     ->  BitmapAnd  (cost=12241.58..12241.58 rows=9772 width=0) (actual time=33.140..33.142 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_18_user_id_idx  (cost=0.00..1036.94 rows=95001 width=0) (actual time=1.715..1.715 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_18_org_id_idx  (cost=0.00..11199.50 rows=1028675 width=0) (actual time=31.387..31.387 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_19 drawer_notification_9  (cost=11749.45..39498.06 rows=9725 width=38) (actual time=21.180..44.683 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared read=1766
+                     ->  BitmapAnd  (cost=11749.45..11749.45 rows=9725 width=0) (actual time=20.311..20.312 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_19_user_id_idx  (cost=0.00..1085.43 rows=99333 width=0) (actual time=1.771..1.771 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_19_org_id_idx  (cost=0.00..10658.90 rows=978996 width=0) (actual time=18.508..18.508 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_20 drawer_notification_10  (cost=12181.92..42410.88 rows=10851 width=38) (actual time=30.519..58.416 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared read=1766
+                     ->  BitmapAnd  (cost=12181.92..12181.92 rows=10851 width=0) (actual time=29.644..29.645 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_20_user_id_idx  (cost=0.00..1169.42 rows=107332 width=0) (actual time=6.041..6.041 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_20_org_id_idx  (cost=0.00..11006.82 rows=1010984 width=0) (actual time=23.570..23.571 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_21 drawer_notification_11  (cost=12046.59..39309.35 rows=9510 width=38) (actual time=45.849..81.696 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared read=1766
+                     ->  BitmapAnd  (cost=12046.59..12046.59 rows=9510 width=0) (actual time=45.679..45.681 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_21_user_id_idx  (cost=0.00..1025.45 rows=94002 width=0) (actual time=4.137..4.137 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_21_org_id_idx  (cost=0.00..11016.13 rows=1011693 width=0) (actual time=41.451..41.451 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_22 drawer_notification_12  (cost=12091.35..41869.36 rows=10642 width=38) (actual time=45.283..74.680 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared read=1766
+                     ->  BitmapAnd  (cost=12091.35..12091.35 rows=10642 width=0) (actual time=44.363..44.364 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_22_user_id_idx  (cost=0.00..1155.43 rows=105999 width=0) (actual time=4.331..4.331 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_22_org_id_idx  (cost=0.00..10930.35 rows=1003989 width=0) (actual time=39.962..39.962 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_23 drawer_notification_13  (cost=12072.33..40549.11 rows=10050 width=38) (actual time=32.433..62.061 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared read=1766
+                     ->  BitmapAnd  (cost=12072.33..12072.33 rows=10050 width=0) (actual time=32.354..32.355 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_23_user_id_idx  (cost=0.00..1087.95 rows=99669 width=0) (actual time=3.994..3.995 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_23_org_id_idx  (cost=0.00..10979.10 rows=1008356 width=0) (actual time=28.324..28.324 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_24 drawer_notification_14  (cost=11765.93..38886.42 rows=9447 width=38) (actual time=22.578..28.207 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared read=1766
+                     ->  BitmapAnd  (cost=11765.93..11765.93 rows=9447 width=0) (actual time=22.507..22.508 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_24_user_id_idx  (cost=0.00..1048.44 rows=96001 width=0) (actual time=2.389..2.389 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_24_org_id_idx  (cost=0.00..10712.52 rows=984011 width=0) (actual time=20.081..20.082 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_25 drawer_notification_15  (cost=12030.45..41540.08 rows=10519 width=38) (actual time=18.760..24.329 rows=10000 loops=1)
+                     Recheck Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Rows Removed by Index Recheck: 46008
+                     Heap Blocks: exact=834
+                     Buffers: shared read=1766
+                     ->  BitmapAnd  (cost=12030.45..12030.45 rows=10519 width=0) (actual time=18.693..18.695 rows=0 loops=1)
+                           Buffers: shared read=932
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_25_user_id_idx  (cost=0.00..1150.44 rows=105334 width=0) (actual time=1.191..1.191 rows=100000 loops=1)
+                                 Index Cond: ((user_id)::text = 'user-50'::text)
+                                 Buffers: shared read=87
+                           ->  Bitmap Index Scan on drawer_notification_2026_03_25_org_id_idx  (cost=0.00..10874.50 rows=998675 width=0) (actual time=17.474..17.474 rows=1000000 loops=1)
+                                 Index Cond: ((org_id)::text = 'org-5'::text)
+                                 Buffers: shared read=845
+ Planning:
+   Buffers: shared hit=145 read=2 dirtied=3
+ Planning Time: 1.874 ms
+ JIT:
+   Functions: 31
+   Options: Inlining true, Optimization true, Expressions true, Deforming true
+   Timing: Generation 2.663 ms (Deform 1.029 ms), Inlining 9.185 ms, Optimization 66.412 ms, Emission 30.563 ms, Total 108.824 ms
+ Execution Time: 982.111 ms
+(211 rows)
+
+=== Scenario 4: Done
+
+ drop_all_test_indexes_day 
+---------------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 5: Composite B-tree (org_id, user_id) ===
+Query: Count notifications for org and user
+                                                                                                                       QUERY PLAN                                                                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=4352.04..4352.05 rows=1 width=8) (actual time=39.047..44.628 rows=1 loops=1)
+   Buffers: shared hit=22 read=166
+   ->  Gather  (cost=4351.82..4352.03 rows=2 width=8) (actual time=38.902..44.621 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=22 read=166
+         ->  Partial Aggregate  (cost=3351.82..3351.83 rows=1 width=8) (actual time=17.665..17.672 rows=1 loops=3)
+               Buffers: shared hit=22 read=166
+               ->  Parallel Append  (cost=0.43..3197.86 rows=61585 width=0) (actual time=1.152..15.705 rows=50000 loops=3)
+                     Buffers: shared hit=22 read=166
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_20_org_id_user_id_idx on drawer_notification_2026_03_20 drawer_notification_10  (cost=0.43..220.25 rows=6660 width=0) (actual time=1.606..3.540 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=2 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_24_org_id_user_id_idx on drawer_notification_2026_03_24 drawer_notification_14  (cost=0.43..214.51 rows=6447 width=0) (actual time=0.106..0.813 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=2 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_18_org_id_user_id_idx on drawer_notification_2026_03_18 drawer_notification_8  (cost=0.43..201.90 rows=6128 width=0) (actual time=1.346..2.483 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=2 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_25_org_id_user_id_idx on drawer_notification_2026_03_25 drawer_notification_15  (cost=0.43..200.82 rows=6088 width=0) (actual time=0.122..1.054 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=2 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_19_org_id_user_id_idx on drawer_notification_2026_03_19 drawer_notification_9  (cost=0.43..199.32 rows=6033 width=0) (actual time=1.034..1.274 rows=3333 loops=3)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=4 read=12
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_21_org_id_user_id_idx on drawer_notification_2026_03_21 drawer_notification_11  (cost=0.43..199.18 rows=6028 width=0) (actual time=1.331..2.287 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_11_org_id_user_id_idx on drawer_notification_2026_03_11 drawer_notification_1  (cost=0.43..199.10 rows=6025 width=0) (actual time=1.275..2.211 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_12_org_id_user_id_idx on drawer_notification_2026_03_12 drawer_notification_2  (cost=0.43..192.50 rows=5780 width=0) (actual time=1.150..2.056 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_16_org_id_user_id_idx on drawer_notification_2026_03_16 drawer_notification_6  (cost=0.43..186.21 rows=5547 width=0) (actual time=1.723..3.044 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_22_org_id_user_id_idx on drawer_notification_2026_03_22 drawer_notification_12  (cost=0.43..186.08 rows=5542 width=0) (actual time=0.890..1.926 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_13_org_id_user_id_idx on drawer_notification_2026_03_13 drawer_notification_3  (cost=0.43..185.68 rows=5528 width=0) (actual time=2.024..3.456 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_17_org_id_user_id_idx on drawer_notification_2026_03_17 drawer_notification_7  (cost=0.43..184.65 rows=5489 width=0) (actual time=2.377..3.934 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_23_org_id_user_id_idx on drawer_notification_2026_03_23 drawer_notification_13  (cost=0.43..178.78 rows=5420 width=0) (actual time=0.072..0.676 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_15_org_id_user_id_idx on drawer_notification_2026_03_15 drawer_notification_5  (cost=0.43..171.33 rows=5144 width=0) (actual time=2.326..3.957 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_14_org_id_user_id_idx on drawer_notification_2026_03_14 drawer_notification_4  (cost=0.43..169.64 rows=5082 width=0) (actual time=1.739..4.152 rows=10000 loops=1)
+                           Index Cond: ((org_id = 'org-5'::text) AND (user_id = 'user-50'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+ Planning:
+   Buffers: shared hit=483
+ Planning Time: 2.914 ms
+ Execution Time: 44.770 ms
+(74 rows)
+
+Query: Select notifications for org and user (with LIMIT)
+                                                                                       QUERY PLAN                                                                                       
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=426926.60..426926.65 rows=20 width=38) (actual time=127.225..127.250 rows=20 loops=1)
+   Buffers: shared hit=7990 read=4685
+   ->  Sort  (cost=426926.60..427296.10 rows=147800 width=38) (actual time=119.350..119.373 rows=20 loops=1)
+         Sort Key: drawer_notification.created DESC
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=7990 read=4685
+         ->  Append  (cost=141.42..422993.69 rows=147800 width=38) (actual time=0.926..109.865 rows=150000 loops=1)
+               Buffers: shared hit=7990 read=4685
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_11 drawer_notification_1  (cost=141.42..29044.40 rows=10242 width=38) (actual time=0.923..12.176 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=12 read=833
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_11_org_id_user_id_idx  (cost=0.00..138.86 rows=10242 width=0) (actual time=0.193..0.194 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_12 drawer_notification_2  (cost=137.15..28114.97 rows=9826 width=38) (actual time=0.423..11.442 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=12 read=833
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_12_org_id_user_id_idx  (cost=0.00..134.69 rows=9826 width=0) (actual time=0.186..0.187 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_13 drawer_notification_3  (cost=132.75..27138.73 rows=9397 width=38) (actual time=0.418..17.643 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=12 read=833
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_13_org_id_user_id_idx  (cost=0.00..130.41 rows=9397 width=0) (actual time=0.191..0.192 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_14 drawer_notification_4  (cost=120.98..25370.76 rows=8639 width=38) (actual time=0.248..13.287 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=12 read=833
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_14_org_id_user_id_idx  (cost=0.00..118.83 rows=8639 width=0) (actual time=0.185..0.186 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_15 drawer_notification_5  (cost=122.07..25621.43 rows=8745 width=38) (actual time=0.514..16.193 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=12 read=833
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_15_org_id_user_id_idx  (cost=0.00..119.89 rows=8745 width=0) (actual time=0.227..0.227 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_16 drawer_notification_6  (cost=133.09..27215.42 rows=9430 width=38) (actual time=0.347..13.403 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=325 read=520
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_16_org_id_user_id_idx  (cost=0.00..130.74 rows=9430 width=0) (actual time=0.255..0.256 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_17 drawer_notification_7  (cost=132.09..26990.21 rows=9332 width=38) (actual time=0.588..3.042 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=845
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_17_org_id_user_id_idx  (cost=0.00..129.75 rows=9332 width=0) (actual time=0.444..0.445 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_18 drawer_notification_8  (cost=143.22..29433.02 rows=10418 width=38) (actual time=0.482..2.657 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=845
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_18_org_id_user_id_idx  (cost=0.00..140.62 rows=10418 width=0) (actual time=0.356..0.356 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_19 drawer_notification_9  (cost=141.56..29074.37 rows=10256 width=38) (actual time=0.355..2.278 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=845
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_19_org_id_user_id_idx  (cost=0.00..139.00 rows=10256 width=0) (actual time=0.260..0.260 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_20 drawer_notification_10  (cost=156.49..31390.60 rows=11322 width=38) (actual time=0.309..2.005 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=845
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_20_org_id_user_id_idx  (cost=0.00..153.66 rows=11322 width=0) (actual time=0.230..0.230 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_21 drawer_notification_11  (cost=141.47..29054.40 rows=10247 width=38) (actual time=0.263..1.833 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=845
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_21_org_id_user_id_idx  (cost=0.00..138.91 rows=10247 width=0) (actual time=0.201..0.201 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_22 drawer_notification_12  (cost=133.01..27194.99 rows=9422 width=38) (actual time=0.221..1.867 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=845
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_22_org_id_user_id_idx  (cost=0.00..130.66 rows=9422 width=0) (actual time=0.167..0.168 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_23 drawer_notification_13  (cost=126.88..26714.10 rows=9214 width=38) (actual time=0.210..1.647 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=845
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_23_org_id_user_id_idx  (cost=0.00..124.58 rows=9214 width=0) (actual time=0.162..0.162 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_24 drawer_notification_14  (cost=152.78..30615.98 rows=10960 width=38) (actual time=0.202..1.620 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=845
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_24_org_id_user_id_idx  (cost=0.00..150.04 rows=10960 width=0) (actual time=0.158..0.159 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+               ->  Bitmap Heap Scan on drawer_notification_2026_03_25 drawer_notification_15  (cost=142.52..29281.31 rows=10350 width=38) (actual time=0.222..1.646 rows=10000 loops=1)
+                     Recheck Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                     Heap Blocks: exact=834
+                     Buffers: shared hit=845
+                     ->  Bitmap Index Scan on drawer_notification_2026_03_25_org_id_user_id_idx  (cost=0.00..139.94 rows=10350 width=0) (actual time=0.177..0.177 rows=10000 loops=1)
+                           Index Cond: (((org_id)::text = 'org-5'::text) AND ((user_id)::text = 'user-50'::text))
+                           Buffers: shared hit=11
+ Planning:
+   Buffers: shared hit=147
+ Planning Time: 0.564 ms
+ JIT:
+   Functions: 31
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 1.448 ms (Deform 0.533 ms), Inlining 0.000 ms, Optimization 0.446 ms, Emission 7.421 ms, Total 9.314 ms
+ Execution Time: 128.891 ms
+(121 rows)
+
+=== Scenario 5: Done
+
+ drop_all_test_indexes_day 
+---------------------------
+ 
+(1 row)
+
+CREATE INDEX
+VACUUM
+=== Scenario 6: Composite B-tree (user_id, org_id) - reversed ===
+Query: Count notifications for org and user
+                                                                                                                       QUERY PLAN                                                                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=4252.63..4252.64 rows=1 width=8) (actual time=36.236..41.077 rows=1 loops=1)
+   Buffers: shared hit=22 read=167
+   ->  Gather  (cost=4252.42..4252.63 rows=2 width=8) (actual time=35.919..41.067 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=22 read=167
+         ->  Partial Aggregate  (cost=3252.42..3252.43 rows=1 width=8) (actual time=15.278..15.284 rows=1 loops=3)
+               Buffers: shared hit=22 read=167
+               ->  Parallel Append  (cost=0.43..3103.25 rows=59668 width=0) (actual time=1.148..12.720 rows=50000 loops=3)
+                     Buffers: shared hit=22 read=167
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_16_user_id_org_id_idx on drawer_notification_2026_03_16 drawer_notification_6  (cost=0.43..206.83 rows=6163 width=0) (actual time=1.120..2.035 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=2 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_18_user_id_org_id_idx on drawer_notification_2026_03_18 drawer_notification_8  (cost=0.43..200.61 rows=6081 width=0) (actual time=0.757..1.419 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=2 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_20_user_id_org_id_idx on drawer_notification_2026_03_20 drawer_notification_10  (cost=0.43..196.83 rows=5941 width=0) (actual time=0.781..1.353 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=2 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_17_user_id_org_id_idx on drawer_notification_2026_03_17 drawer_notification_7  (cost=0.43..195.78 rows=5902 width=0) (actual time=0.309..0.508 rows=3333 loops=3)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=4 read=12
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_12_user_id_org_id_idx on drawer_notification_2026_03_12 drawer_notification_2  (cost=0.43..192.32 rows=5774 width=0) (actual time=0.630..0.910 rows=5000 loops=2)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=2 read=12
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_25_user_id_org_id_idx on drawer_notification_2026_03_25 drawer_notification_15  (cost=0.43..191.72 rows=5751 width=0) (actual time=0.059..0.685 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_14_user_id_org_id_idx on drawer_notification_2026_03_14 drawer_notification_4  (cost=0.43..190.48 rows=5705 width=0) (actual time=0.762..1.350 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_19_user_id_org_id_idx on drawer_notification_2026_03_19 drawer_notification_9  (cost=0.43..190.32 rows=5699 width=0) (actual time=1.175..1.728 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_24_user_id_org_id_idx on drawer_notification_2026_03_24 drawer_notification_14  (cost=0.43..186.84 rows=5571 width=0) (actual time=0.062..0.669 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_23_user_id_org_id_idx on drawer_notification_2026_03_23 drawer_notification_13  (cost=0.43..185.36 rows=5516 width=0) (actual time=1.003..1.720 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_21_user_id_org_id_idx on drawer_notification_2026_03_21 drawer_notification_11  (cost=0.43..177.68 rows=5379 width=0) (actual time=1.047..2.202 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_15_user_id_org_id_idx on drawer_notification_2026_03_15 drawer_notification_5  (cost=0.43..175.38 rows=5294 width=0) (actual time=0.898..2.568 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_22_user_id_org_id_idx on drawer_notification_2026_03_22 drawer_notification_12  (cost=0.43..172.03 rows=5170 width=0) (actual time=1.345..2.777 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_11_user_id_org_id_idx on drawer_notification_2026_03_11 drawer_notification_1  (cost=0.43..171.90 rows=5165 width=0) (actual time=1.323..2.889 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+                     ->  Parallel Index Only Scan using drawer_notification_2026_03_13_user_id_org_id_idx on drawer_notification_2026_03_13 drawer_notification_3  (cost=0.43..170.83 rows=5126 width=0) (actual time=1.538..3.074 rows=10000 loops=1)
+                           Index Cond: ((user_id = 'user-50'::text) AND (org_id = 'org-5'::text))
+                           Heap Fetches: 0
+                           Buffers: shared hit=1 read=11
+ Planning:
+   Buffers: shared hit=488
+ Planning Time: 2.123 ms
+ Execution Time: 41.228 ms
+(74 rows)
+
+Query: Select notifications for org and user (with LIMIT)
+                                                                                                               QUERY PLAN                                                                                                               
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=351670.39..351670.44 rows=20 width=38) (actual time=56.753..56.764 rows=20 loops=1)
+   Buffers: shared hit=12675
+   ->  Sort  (cost=351670.39..352028.39 rows=143202 width=38) (actual time=38.641..38.650 rows=20 loops=1)
+         Sort Key: drawer_notification.created DESC
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=12675
+         ->  Append  (cost=0.43..347859.84 rows=143202 width=38) (actual time=0.056..30.019 rows=150000 loops=1)
+               Buffers: shared hit=12675
+               ->  Index Scan using drawer_notification_2026_03_11_user_id_org_id_idx on drawer_notification_2026_03_11 drawer_notification_1  (cost=0.43..21533.57 rows=8781 width=38) (actual time=0.054..1.887 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_12_user_id_org_id_idx on drawer_notification_2026_03_12 drawer_notification_2  (cost=0.43..23877.82 rows=9815 width=38) (actual time=0.025..1.561 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_13_user_id_org_id_idx on drawer_notification_2026_03_13 drawer_notification_3  (cost=0.43..21275.89 rows=8714 width=38) (actual time=0.026..1.557 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_14_user_id_org_id_idx on drawer_notification_2026_03_14 drawer_notification_4  (cost=0.43..23609.63 rows=9699 width=38) (actual time=0.021..1.583 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_15_user_id_org_id_idx on drawer_notification_2026_03_15 drawer_notification_5  (cost=0.43..21804.90 rows=9000 width=38) (actual time=0.020..1.492 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_16_user_id_org_id_idx on drawer_notification_2026_03_16 drawer_notification_6  (cost=0.43..25123.59 rows=10477 width=38) (actual time=0.027..2.235 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_17_user_id_org_id_idx on drawer_notification_2026_03_17 drawer_notification_7  (cost=0.43..24203.60 rows=10033 width=38) (actual time=0.030..1.909 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_18_user_id_org_id_idx on drawer_notification_2026_03_18 drawer_notification_8  (cost=0.43..24866.33 rows=10337 width=38) (actual time=0.024..1.737 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_19_user_id_org_id_idx on drawer_notification_2026_03_19 drawer_notification_9  (cost=0.43..23223.91 rows=9689 width=38) (actual time=0.018..1.564 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_20_user_id_org_id_idx on drawer_notification_2026_03_20 drawer_notification_10  (cost=0.43..24107.47 rows=10099 width=38) (actual time=0.014..1.376 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_21_user_id_org_id_idx on drawer_notification_2026_03_21 drawer_notification_11  (cost=0.43..22346.51 rows=9145 width=38) (actual time=0.015..1.330 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_22_user_id_org_id_idx on drawer_notification_2026_03_22 drawer_notification_12  (cost=0.43..21529.59 rows=8789 width=38) (actual time=0.019..1.298 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_23_user_id_org_id_idx on drawer_notification_2026_03_23 drawer_notification_13  (cost=0.43..22542.74 rows=9377 width=38) (actual time=0.013..1.303 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_24_user_id_org_id_idx on drawer_notification_2026_03_24 drawer_notification_14  (cost=0.43..23219.12 rows=9470 width=38) (actual time=0.014..1.291 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+               ->  Index Scan using drawer_notification_2026_03_25_user_id_org_id_idx on drawer_notification_2026_03_25 drawer_notification_15  (cost=0.43..23879.17 rows=9777 width=38) (actual time=0.015..1.358 rows=10000 loops=1)
+                     Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+                     Buffers: shared hit=845
+ Planning:
+   Buffers: shared hit=135
+ Planning Time: 0.610 ms
+ JIT:
+   Functions: 31
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 1.477 ms (Deform 0.551 ms), Inlining 0.000 ms, Optimization 0.485 ms, Emission 17.617 ms, Total 19.579 ms
+ Execution Time: 58.422 ms
+(61 rows)
+
+=== Scenario 6: Done
+
+=== Testing additional query patterns ===
+Query: Exact date range - should hit 1 partition
+                                                                                                        QUERY PLAN                                                                                                         
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Append  (cost=0.43..348981.27 rows=9484 width=38) (actual time=6.198..14.651 rows=10000 loops=1)
+   Buffers: shared hit=845
+   Subplans Removed: 14
+   ->  Index Scan using drawer_notification_2026_03_24_user_id_org_id_idx on drawer_notification_2026_03_24 drawer_notification_1  (cost=0.43..23337.49 rows=9470 width=38) (actual time=6.196..13.171 rows=10000 loops=1)
+         Index Cond: (((user_id)::text = 'user-50'::text) AND ((org_id)::text = 'org-5'::text))
+         Filter: ((created < CURRENT_DATE) AND (created >= (CURRENT_DATE - '1 day'::interval)))
+         Buffers: shared hit=845
+ Planning:
+   Buffers: shared hit=8 read=1
+ Planning Time: 1.340 ms
+ JIT:
+   Functions: 6
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.881 ms (Deform 0.255 ms), Inlining 0.000 ms, Optimization 0.626 ms, Emission 8.427 ms, Total 9.934 ms
+ Execution Time: 19.417 ms
+(15 rows)
+
+Query: Count by org with date filter
+                                                                                                 QUERY PLAN                                                                                                 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize GroupAggregate  (cost=2594972.40..2594974.93 rows=10 width=14) (actual time=8249.797..8256.641 rows=10 loops=1)
+   Group Key: drawer_notification.org_id
+   Buffers: shared hit=6300 read=493804
+   ->  Gather Merge  (cost=2594972.40..2594974.73 rows=20 width=14) (actual time=8249.779..8256.618 rows=30 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=6300 read=493804
+         ->  Sort  (cost=2593972.37..2593972.40 rows=10 width=14) (actual time=8167.591..8167.596 rows=10 loops=3)
+               Sort Key: drawer_notification.org_id
+               Sort Method: quicksort  Memory: 25kB
+               Buffers: shared hit=6300 read=493804
+               Worker 0:  Sort Method: quicksort  Memory: 25kB
+               Worker 1:  Sort Method: quicksort  Memory: 25kB
+               ->  Partial HashAggregate  (cost=2593972.11..2593972.21 rows=10 width=14) (actual time=8167.553..8167.559 rows=10 loops=3)
+                     Group Key: drawer_notification.org_id
+                     Batches: 1  Memory Usage: 24kB
+                     Buffers: shared hit=6284 read=493804
+                     Worker 0:  Batches: 1  Memory Usage: 24kB
+                     Worker 1:  Batches: 1  Memory Usage: 24kB
+                     ->  Parallel Append  (cost=0.00..2468971.50 rows=25000121 width=6) (actual time=196.330..5517.409 rows=20000000 loops=3)
+                           Buffers: shared hit=6284 read=493804
+                           Subplans Removed: 9
+                           ->  Parallel Seq Scan on drawer_notification_2026_03_21 drawer_notification_2  (cost=0.00..156265.34 rows=4166705 width=6) (actual time=121.733..2067.030 rows=10000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Buffers: shared hit=962 read=82386
+                           ->  Parallel Seq Scan on drawer_notification_2026_03_25 drawer_notification_6  (cost=0.00..156265.26 rows=4166701 width=6) (actual time=216.811..1912.933 rows=10000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Buffers: shared hit=1474 read=81874
+                           ->  Parallel Seq Scan on drawer_notification_2026_03_22 drawer_notification_3  (cost=0.00..156265.06 rows=4166689 width=6) (actual time=0.102..1976.902 rows=10000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Buffers: shared hit=962 read=82386
+                           ->  Parallel Seq Scan on drawer_notification_2026_03_20 drawer_notification_1  (cost=0.00..156264.90 rows=4166680 width=6) (actual time=0.402..839.094 rows=3333333 loops=3)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Buffers: shared hit=962 read=82386
+                           ->  Parallel Seq Scan on drawer_notification_2026_03_24 drawer_notification_5  (cost=0.00..156264.78 rows=4166673 width=6) (actual time=0.080..1080.438 rows=5000000 loops=2)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Buffers: shared hit=962 read=82386
+                           ->  Parallel Seq Scan on drawer_notification_2026_03_23 drawer_notification_4  (cost=0.00..156264.62 rows=4166664 width=6) (actual time=250.437..2406.989 rows=10000000 loops=1)
+                                 Filter: (created >= (CURRENT_DATE - '5 days'::interval))
+                                 Buffers: shared hit=962 read=82386
+ Planning:
+   Buffers: shared hit=3
+ Planning Time: 0.738 ms
+ JIT:
+   Functions: 90
+   Options: Inlining true, Optimization true, Expressions true, Deforming true
+   Timing: Generation 6.975 ms (Deform 1.051 ms), Inlining 222.411 ms, Optimization 328.149 ms, Emission 256.162 ms, Total 813.697 ms
+ Execution Time: 8289.146 ms
+(48 rows)
+
+=== Additional query patterns: Done
+
+ drop_all_test_indexes_day 
+---------------------------
+ 
+(1 row)
+
+DROP FUNCTION
