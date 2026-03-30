@@ -169,7 +169,7 @@ $$;
 -- Event table indexes (matching production)
 create index ix_event_org_id on event (org_id, created desc, id);
 create index ix_event_org_id_application_id on event (org_id, application_id, created desc, id);
-create index ix_event_org_id_bundle_id_application_id_event_type_display_name
+create index ix_event_composite_index --ix_event_org_id_bundle_id_application_id_event_type_display_name
     on event (org_id, bundle_id, application_id, event_type_display_name, created desc, id);
 
 -- CRITICAL: Index for normalized approach (joins on event_type_id)
